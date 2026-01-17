@@ -16,6 +16,9 @@ class NotificationService {
     }
 
     func scheduleInterrupts(wakeUpTime: Date, language: String) {
+        // Clear any existing notifications before scheduling new ones
+        cancelAll()
+
         let questions = QuestionService.shared.questions(for: 2, type: .interrupt)
         let offsets: [Int] = [3, 5, 7, 9, 11, 13] // hours from wake
 
@@ -43,7 +46,7 @@ class NotificationService {
         content.body = body
         content.sound = .default
 
-        let components = Calendar.current.dateComponents([.hour, .minute], from: date)
+        let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date)
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
 
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
