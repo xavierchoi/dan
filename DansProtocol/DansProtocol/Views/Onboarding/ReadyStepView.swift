@@ -19,8 +19,8 @@ struct ReadyStepView: View {
                     ReadyItem(
                         title: language == "ko" ? "Part 1: \u{C131}\u{CC30}" : "Part 1: Reflection",
                         description: language == "ko"
-                            ? "\u{C544}\u{CE68}\u{C5D0} 12\u{AC1C}\u{C758} \u{C9C8}\u{BB38}\u{C5D0} \u{B2F5}\u{D558}\u{BA70} \u{C0B6}\u{C744} \u{B3CC}\u{C544}\u{BD05}\u{B2C8}\u{B2E4}"
-                            : "Answer 12 questions in the morning to reflect on your life"
+                            ? "\u{C544}\u{CE68}\u{C5D0} 15\u{AC1C}\u{C758} \u{C9C8}\u{BB38}\u{C5D0} \u{B2F5}\u{D558}\u{BA70} \u{C0B6}\u{C744} \u{B3CC}\u{C544}\u{BD05}\u{B2C8}\u{B2E4}"
+                            : "Answer 15 questions in the morning to reflect on your life"
                     )
 
                     ReadyItem(

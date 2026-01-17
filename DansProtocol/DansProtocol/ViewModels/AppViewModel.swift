@@ -46,10 +46,15 @@ class AppViewModel {
     }
 
     func handleNotificationTap(questionId: String) {
-        // Only handle interrupt notifications during Part 2
-        guard appState == .part2Waiting else { return }
-        currentInterruptQuestionId = questionId
+        pendingNotificationId = questionId
+        presentPendingIfPossible()
+    }
+
+    func presentPendingIfPossible() {
+        guard appState == .part2Waiting, let id = pendingNotificationId else { return }
+        currentInterruptQuestionId = id
         showingInterrupt = true
+        pendingNotificationId = nil
     }
 
     func dismissInterrupt() {
