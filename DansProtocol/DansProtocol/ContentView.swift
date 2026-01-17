@@ -11,18 +11,19 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             // Brutalist black background
-            Color.black
+            Color.dpBackground
                 .ignoresSafeArea()
 
-            VStack(spacing: 24) {
+            VStack(spacing: Spacing.screenPadding) {
                 Text("Dan's Protocol")
-                    .font(.system(size: 32, weight: .bold, design: .default))
-                    .foregroundColor(.white)
+                    .font(.dpQuestionLarge)
+                    .foregroundStyle(Color.dpPrimaryText)
 
                 Text("Fix Your Entire Life in 1 Day")
-                    .font(.system(size: 16, weight: .regular, design: .default))
-                    .foregroundColor(.white.opacity(0.7))
+                    .font(.dpBody)
+                    .foregroundStyle(Color.dpSecondaryText)
             }
+            .padding(.horizontal, Spacing.screenPadding)
         }
         .preferredColorScheme(.dark)
     }
