@@ -10,6 +10,10 @@ struct HistoryView: View {
             .sorted { ($0.completedAt ?? .distantPast) > ($1.completedAt ?? .distantPast) }
     }
 
+    private var language: String {
+        completedSessions.first?.language ?? "en"
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -17,13 +21,13 @@ struct HistoryView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: Spacing.sectionSpacing) {
-                        Text("Your Journey")
+                        Text(HistoryLabels.yourJourney(for: language))
                             .font(.dpQuestionLarge)
                             .foregroundColor(.dpPrimaryText)
                             .padding(.top, Spacing.questionTopPadding)
 
                         if completedSessions.isEmpty {
-                            Text("No completed sessions yet")
+                            Text(HistoryLabels.noCompletedSessions(for: language))
                                 .font(.dpBody)
                                 .foregroundColor(.dpSecondaryText)
                         } else {
@@ -36,7 +40,7 @@ struct HistoryView: View {
                                         )
                                     } label: {
                                         HStack {
-                                            Text("Compare with previous")
+                                            Text(HistoryLabels.compareWithPrevious(for: language))
                                                 .font(.dpButton)
                                                 .foregroundColor(.dpPrimaryText)
                                             Spacer()
@@ -64,7 +68,7 @@ struct HistoryView: View {
 
                         Spacer(minLength: Spacing.sectionSpacing)
 
-                        TextButton(title: "Start New Protocol", action: onStartNew)
+                        TextButton(title: HistoryLabels.startNewProtocol(for: language), action: onStartNew)
                     }
                     .padding(Spacing.screenPadding)
                 }

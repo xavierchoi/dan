@@ -39,12 +39,12 @@ struct Part2WaitingView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.sectionSpacing) {
-                    Text("Part 2: Interrupting Autopilot")
+                    Text(Part2Labels.title(for: session.language))
                         .font(.dpQuestionLarge)
                         .foregroundColor(.dpPrimaryText)
                         .padding(.top, Spacing.questionTopPadding)
 
-                    Text("\(answeredCount) of \(interruptQuestions.count) reflections completed")
+                    Text(Part2Labels.reflectionsCompleted(for: session.language, answered: answeredCount, total: interruptQuestions.count))
                         .font(.dpCaption)
                         .foregroundColor(.dpSecondaryText)
 
@@ -64,11 +64,11 @@ struct Part2WaitingView: View {
                                 .fill(Color.dpSeparator)
                                 .frame(height: 1)
 
-                            Text("Waiting for notifications...")
+                            Text(Part2Labels.waitingForNotifications(for: session.language))
                                 .font(.dpCaption)
                                 .foregroundColor(.dpSecondaryText)
 
-                            Text("When you receive a notification, tap it to reflect on the question.")
+                            Text(Part2Labels.tapNotificationInstruction(for: session.language))
                                 .font(.dpCaption)
                                 .foregroundColor(.dpSecondaryText)
                         }
@@ -78,13 +78,13 @@ struct Part2WaitingView: View {
 
                     VStack(alignment: .leading, spacing: Spacing.elementSpacing) {
                         if !allAnswered {
-                            Text("You can start Part 3 with unanswered questions, but completing all reflections is recommended.")
+                            Text(Part2Labels.startPart3Recommendation(for: session.language))
                                 .font(.dpCaption)
                                 .foregroundColor(.dpSecondaryText)
                         }
 
                         TextButton(
-                            title: "Start Part 3 →",
+                            title: Part2Labels.startPart3(for: session.language),
                             action: onStartPart3
                         )
                     }

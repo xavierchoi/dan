@@ -22,7 +22,7 @@ struct SessionComparisonView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.sectionSpacing) {
-                    Text("Then vs Now")
+                    Text(HistoryLabels.thenVsNow(for: language))
                         .font(.dpQuestionLarge)
                         .foregroundColor(.dpPrimaryText)
                         .padding(.top, Spacing.elementSpacing)

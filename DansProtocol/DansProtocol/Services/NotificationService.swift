@@ -33,7 +33,7 @@ class NotificationService {
 
             scheduleNotification(
                 id: question.id,
-                title: "Time to reflect",
+                title: NotificationLabels.timeToReflect(for: language),
                 body: question.text(for: language),
                 date: triggerDate
             )

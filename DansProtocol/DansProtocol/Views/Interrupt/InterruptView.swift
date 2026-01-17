@@ -35,12 +35,12 @@ struct InterruptView: View {
                 Spacer()
 
                 HStack {
-                    TextButton(title: "Skip", action: { dismiss() })
+                    TextButton(title: NavLabels.skip(for: session.language), action: { dismiss() })
 
                     Spacer()
 
                     TextButton(
-                        title: "Save →",
+                        title: NavLabels.save(for: session.language),
                         action: saveAndDismiss,
                         isEnabled: !response.isEmpty
                     )

@@ -29,13 +29,13 @@ struct SynthesisView: View {
 
                 HStack {
                     if viewModel.currentQuestionIndex > 0 {
-                        TextButton(title: "← Back", action: viewModel.goBack)
+                        TextButton(title: NavLabels.back(for: viewModel.session.language), action: viewModel.goBack)
                     }
 
                     Spacer()
 
                     TextButton(
-                        title: viewModel.isLastQuestion ? "Complete →" : "Continue →",
+                        title: viewModel.isLastQuestion ? NavLabels.complete(for: viewModel.session.language) : NavLabels.continueButton(for: viewModel.session.language),
                         action: {
                             viewModel.saveAndNext(modelContext: modelContext)
                             if viewModel.currentQuestion == nil {

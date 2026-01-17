@@ -29,13 +29,13 @@ struct ComponentsInputView: View {
 
                 HStack {
                     if viewModel.currentIndex > 0 {
-                        TextButton(title: "← Back", action: viewModel.goBack)
+                        TextButton(title: NavLabels.back(for: viewModel.session.language), action: viewModel.goBack)
                     }
 
                     Spacer()
 
                     TextButton(
-                        title: viewModel.isLast ? "Complete →" : "Continue →",
+                        title: viewModel.isLast ? NavLabels.complete(for: viewModel.session.language) : NavLabels.continueButton(for: viewModel.session.language),
                         action: {
                             viewModel.saveAndNext(modelContext: modelContext)
                             if viewModel.isDone {
