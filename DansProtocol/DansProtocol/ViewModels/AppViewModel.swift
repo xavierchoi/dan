@@ -38,6 +38,8 @@ class AppViewModel {
         case .completed:
             appState = .history
         }
+
+        presentPendingIfPossible()
     }
 
     func startNewSession() {
