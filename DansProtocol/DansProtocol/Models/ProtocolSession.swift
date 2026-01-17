@@ -1,13 +1,21 @@
 import Foundation
 import SwiftData
 
+enum ProtocolStatus: String, Codable {
+    case notStarted
+    case part1
+    case part2
+    case part3
+    case completed
+}
+
 @Model
 final class ProtocolSession {
     var id: UUID
     var startDate: Date
     var wakeUpTime: Date
     var language: String
-    var status: String
+    var status: ProtocolStatus
     var completedAt: Date?
 
     @Relationship(deleteRule: .cascade, inverse: \JournalEntry.session)
@@ -21,22 +29,12 @@ final class ProtocolSession {
         startDate: Date,
         wakeUpTime: Date,
         language: String = "en",
-        status: String = "notStarted"
+        status: ProtocolStatus = .notStarted
     ) {
         self.id = id
         self.startDate = startDate
         self.wakeUpTime = wakeUpTime
         self.language = language
         self.status = status
-    }
-}
-
-extension ProtocolSession {
-    enum Status: String {
-        case notStarted
-        case part1
-        case part2
-        case part3
-        case completed
     }
 }
