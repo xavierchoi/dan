@@ -118,12 +118,6 @@ enum Part2Labels {
     static func additionalReflection(for language: String) -> String {
         language == "ko" ? "추가 성찰 (선택)" : "Additional Reflection (Optional)"
     }
-
-    static func contemplationCompleted(for language: String, answered: Int, total: Int) -> String {
-        language == "ko"
-            ? "\(total)개 중 \(answered)개 완료"
-            : "\(answered) of \(total) completed"
-    }
 }
 
 // MARK: - History

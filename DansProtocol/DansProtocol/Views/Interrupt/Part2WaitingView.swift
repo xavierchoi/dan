@@ -34,10 +34,6 @@ struct Part2WaitingView: View {
         interruptQuestions.filter { isAnswered($0) }.count
     }
 
-    private var contemplationAnsweredCount: Int {
-        contemplationQuestions.filter { isAnswered($0) }.count
-    }
-
     private var allAnswered: Bool {
         answeredCount == interruptQuestions.count
     }
