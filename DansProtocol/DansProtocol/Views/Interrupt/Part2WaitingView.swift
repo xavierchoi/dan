@@ -55,7 +55,7 @@ struct Part2WaitingView: View {
 
                     VStack(alignment: .leading, spacing: Spacing.elementSpacing) {
                         ForEach(interruptQuestions) { question in
-                            InterruptStatusRow(
+                            QuestionStatusRow(
                                 question: question,
                                 language: session.language,
                                 isAnswered: isAnswered(question)
@@ -92,13 +92,13 @@ struct Part2WaitingView: View {
                                 .foregroundColor(.dpSecondaryText)
 
                             ForEach(contemplationQuestions) { question in
-                                ContemplationRow(
+                                QuestionStatusRow(
                                     question: question,
                                     language: session.language,
-                                    isAnswered: isAnswered(question)
-                                ) {
-                                    selectedContemplationQuestionId = question.id
-                                }
+                                    isAnswered: isAnswered(question),
+                                    showArrow: true,
+                                    onTap: { selectedContemplationQuestionId = question.id }
+                                )
                             }
                         }
                     }
@@ -141,46 +141,15 @@ private struct ContemplationQuestionId: Identifiable {
     let id: String
 }
 
-struct ContemplationRow: View {
+struct QuestionStatusRow: View {
     let question: Question
     let language: String
     let isAnswered: Bool
-    let onTap: () -> Void
+    var showArrow: Bool = false
+    var onTap: (() -> Void)? = nil
 
     var body: some View {
-        Button(action: onTap) {
-            HStack(alignment: .top, spacing: 12) {
-                Text(isAnswered ? "✓" : "○")
-                    .font(.dpBody)
-                    .foregroundColor(isAnswered ? .dpPrimaryText : .dpSecondaryText)
-                    .frame(width: 20)
-
-                Text(question.text(for: language))
-                    .font(.dpBody)
-                    .foregroundColor(isAnswered ? .dpPrimaryText : .dpSecondaryText)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.leading)
-
-                Spacer()
-
-                Text("→")
-                    .font(.dpBody)
-                    .foregroundColor(.dpSecondaryText)
-            }
-            .padding(.vertical, 8)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-struct InterruptStatusRow: View {
-    let question: Question
-    let language: String
-    let isAnswered: Bool
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        let content = HStack(alignment: .top, spacing: Spacing.rowPadding) {
             Text(isAnswered ? "✓" : "○")
                 .font(.dpBody)
                 .foregroundColor(isAnswered ? .dpPrimaryText : .dpSecondaryText)
@@ -190,9 +159,24 @@ struct InterruptStatusRow: View {
                 .font(.dpBody)
                 .foregroundColor(isAnswered ? .dpPrimaryText : .dpSecondaryText)
                 .lineLimit(2)
+                .multilineTextAlignment(.leading)
 
             Spacer()
+
+            if showArrow {
+                Text("→")
+                    .font(.dpBody)
+                    .foregroundColor(.dpSecondaryText)
+            }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, Spacing.elementSpacing)
+        .contentShape(Rectangle())
+
+        if let onTap = onTap {
+            Button(action: onTap) { content }
+                .buttonStyle(.plain)
+        } else {
+            content
+        }
     }
 }
