@@ -12,7 +12,9 @@ import SwiftData
 struct DansProtocolApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            // Models will be added here as they are created
+            ProtocolSession.self,
+            JournalEntry.self,
+            LifeGameComponents.self
         ])
         let modelConfiguration = ModelConfiguration(
             schema: schema,
