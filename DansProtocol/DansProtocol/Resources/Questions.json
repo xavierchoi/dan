@@ -1,0 +1,285 @@
+{
+  "part1": [
+    {
+      "id": "part1_q1",
+      "part": 1,
+      "order": 1,
+      "en": "What is the dull and persistent dissatisfaction you've learned to live with?",
+      "ko": "당신이 삶의 일부로 받아들인, 희미하지만 끊이지 않는 불만족은 무엇인가요?"
+    },
+    {
+      "id": "part1_q2",
+      "part": 1,
+      "order": 2,
+      "en": "What do you complain about repeatedly but never actually change? Write down the three complaints you've voiced most often in the past year.",
+      "ko": "반복적으로 불평하면서도 실제로는 바꾸지 않는 것은 무엇인가요? 지난 1년간 가장 자주 했던 불평 세 가지를 적어보세요."
+    },
+    {
+      "id": "part1_q3",
+      "part": 1,
+      "order": 3,
+      "en": "For each complaint: What would someone who watched your behavior (not your words) conclude that you actually want?",
+      "ko": "각 불평에 대해: 당신의 말이 아닌 행동을 지켜본 누군가는, 당신이 실제로 원하는 것이 무엇이라고 결론 내릴까요?"
+    },
+    {
+      "id": "part1_q4",
+      "part": 1,
+      "order": 4,
+      "en": "What dream did you bury because it felt too impractical? When exactly did you decide to give up on it?",
+      "ko": "비현실적으로 느껴져서 묻어버린 꿈은 무엇인가요? 정확히 언제 그것을 포기하기로 결심했나요?"
+    },
+    {
+      "id": "part1_q5",
+      "part": 1,
+      "order": 5,
+      "en": "What part of yourself did you stop developing? What skill, talent, or trait did you abandon because life got \"too busy\"?",
+      "ko": "발전시키기를 멈춘 자신의 어떤 부분이 있나요? 삶이 '너무 바빠져서' 포기한 기술, 재능, 또는 특성은 무엇인가요?"
+    },
+    {
+      "id": "part1_q6",
+      "part": 1,
+      "order": 6,
+      "en": "What lie are you telling yourself about why \"now isn't the right time\"?",
+      "ko": "\"지금은 때가 아니다\"라는 핑계로 자신에게 하고 있는 거짓말은 무엇인가요?"
+    },
+    {
+      "id": "part1_q7",
+      "part": 1,
+      "order": 7,
+      "en": "What's the most important thing you've been \"getting ready\" to do for more than six months?",
+      "ko": "6개월 이상 \"준비 중\"이라고 미루고 있는 가장 중요한 일은 무엇인가요?"
+    },
+    {
+      "id": "part1_q8",
+      "part": 1,
+      "order": 8,
+      "en": "What would be painfully obvious about your life if you saw it through the eyes of your childhood self?",
+      "ko": "어린 시절의 눈으로 지금의 삶을 본다면, 고통스럽도록 명백해지는 것은 무엇일까요?"
+    },
+    {
+      "id": "part1_q9",
+      "part": 1,
+      "order": 9,
+      "en": "What would you do differently if no one would ever know and there were no social consequences?",
+      "ko": "아무도 알지 못하고, 어떤 사회적 결과도 없다면, 무엇을 다르게 할 건가요?"
+    },
+    {
+      "id": "part1_q10",
+      "part": 1,
+      "order": 10,
+      "en": "What relationship are you maintaining out of guilt rather than genuine connection?",
+      "ko": "진정한 유대가 아닌 죄책감 때문에 유지하고 있는 관계는 무엇인가요?"
+    },
+    {
+      "id": "part1_q11",
+      "part": 1,
+      "order": 11,
+      "en": "What success would actually feel hollow, and what would feel truly meaningful?",
+      "ko": "어떤 성공이 실제로는 공허하게 느껴지고, 어떤 것이 진정으로 의미 있게 느껴질까요?"
+    },
+    {
+      "id": "part1_q12",
+      "part": 1,
+      "order": 12,
+      "en": "If you had a debilitating illness with only five years left to live, what would you immediately stop doing?",
+      "ko": "만약 심각한 질병으로 5년밖에 살지 못한다면, 당장 무엇을 그만둘 건가요?"
+    },
+    {
+      "id": "part1_q13",
+      "part": 1,
+      "order": 13,
+      "en": "What would you start doing with urgency?",
+      "ko": "무엇을 급하게 시작할 건가요?"
+    },
+    {
+      "id": "part1_q14",
+      "part": 1,
+      "order": 14,
+      "en": "What do you pretend to believe because it's easier than facing what you actually think?",
+      "ko": "진짜 생각하는 것을 마주하기보다 쉽기 때문에 믿는 척하는 것은 무엇인가요?"
+    },
+    {
+      "id": "part1_q15",
+      "part": 1,
+      "order": 15,
+      "en": "What's your anti-vision? If everything continues as is, what does your life look like in five years? Be ruthlessly honest.",
+      "ko": "당신의 안티비전은 무엇인가요? 모든 것이 지금처럼 계속된다면, 5년 후 당신의 삶은 어떤 모습일까요? 냉혹하게 솔직해지세요."
+    }
+  ],
+  "part2Interrupts": [
+    {
+      "id": "part2_interrupt_1",
+      "part": 2,
+      "order": 1,
+      "en": "What am I avoiding right now by doing what I'm doing?",
+      "ko": "지금 하고 있는 일로 무엇을 피하고 있나요?"
+    },
+    {
+      "id": "part2_interrupt_2",
+      "part": 2,
+      "order": 2,
+      "en": "What would someone who watched my behavior (not my words) conclude that I actually want?",
+      "ko": "내 말이 아닌 행동을 지켜본 누군가는, 내가 실제로 원하는 것이 무엇이라고 결론 내릴까요?"
+    },
+    {
+      "id": "part2_interrupt_3",
+      "part": 2,
+      "order": 3,
+      "en": "Right now, am I moving toward my vision or away from it?",
+      "ko": "지금 이 순간, 나는 내 비전을 향해 가고 있나요, 아니면 멀어지고 있나요?"
+    },
+    {
+      "id": "part2_interrupt_4",
+      "part": 2,
+      "order": 4,
+      "en": "What's important that I'm pretending isn't?",
+      "ko": "중요한데 중요하지 않은 척하고 있는 것은 무엇인가요?"
+    },
+    {
+      "id": "part2_interrupt_5",
+      "part": 2,
+      "order": 5,
+      "en": "What did I do today for identity protection rather than genuine progress?",
+      "ko": "오늘 진정한 발전이 아닌 정체성 보호를 위해 한 일은 무엇인가요?"
+    },
+    {
+      "id": "part2_interrupt_6",
+      "part": 2,
+      "order": 6,
+      "en": "When did I feel most alive today? Most dead inside?",
+      "ko": "오늘 언제 가장 살아있음을 느꼈나요? 언제 가장 무기력했나요?"
+    }
+  ],
+  "part2Contemplation": [
+    {
+      "id": "part2_contemplation_1",
+      "part": 2,
+      "order": 1,
+      "en": "When have I felt most aligned with my potential today?",
+      "ko": "오늘 언제 내 잠재력과 가장 일치한다고 느꼈나요?"
+    },
+    {
+      "id": "part2_contemplation_2",
+      "part": 2,
+      "order": 2,
+      "en": "What uncomfortable truth tried to surface today?",
+      "ko": "오늘 어떤 불편한 진실이 수면 위로 올라오려 했나요?"
+    },
+    {
+      "id": "part2_contemplation_3",
+      "part": 2,
+      "order": 3,
+      "en": "Where did I choose comfort over growth?",
+      "ko": "어디서 성장보다 안락함을 선택했나요?"
+    }
+  ],
+  "part3Synthesis": [
+    {
+      "id": "part3_synthesis_1",
+      "part": 3,
+      "order": 1,
+      "en": "After today, what feels most true about why you've been stuck?",
+      "ko": "오늘 하루를 보낸 후, 왜 그동안 멈춰 있었는지에 대해 가장 진실되게 느껴지는 것은 무엇인가요?"
+    },
+    {
+      "id": "part3_synthesis_2",
+      "part": 3,
+      "order": 2,
+      "en": "What are you actually afraid of? Not what you tell people—what you've never said out loud.",
+      "ko": "당신이 진짜 두려워하는 것은 무엇인가요? 남들에게 말하는 것이 아닌, 한 번도 입 밖에 꺼낸 적 없는 것."
+    },
+    {
+      "id": "part3_synthesis_3",
+      "part": 3,
+      "order": 3,
+      "en": "What would you do if you truly believed you couldn't fail? What would you do if you truly believed you were going to die in one year?",
+      "ko": "절대 실패할 수 없다고 진심으로 믿는다면 무엇을 할 건가요? 1년 후에 죽는다고 진심으로 믿는다면 무엇을 할 건가요?"
+    },
+    {
+      "id": "part3_synthesis_4",
+      "part": 3,
+      "order": 4,
+      "en": "What one thing, if you achieved it in the next year, would change everything?",
+      "ko": "내년에 이룬다면 모든 것을 바꿔놓을 단 한 가지는 무엇인가요?"
+    },
+    {
+      "id": "part3_synthesis_5",
+      "part": 3,
+      "order": 5,
+      "en": "What's the smallest possible version of that you could start tomorrow?",
+      "ko": "내일 당장 시작할 수 있는 가장 작은 버전은 무엇인가요?"
+    },
+    {
+      "id": "part3_synthesis_6",
+      "part": 3,
+      "order": 6,
+      "en": "What must you stop doing immediately for any of this to work?",
+      "ko": "이 모든 것이 효과를 발휘하려면 당장 무엇을 멈춰야 하나요?"
+    },
+    {
+      "id": "part3_synthesis_7",
+      "part": 3,
+      "order": 7,
+      "en": "What environment, relationship, or circumstance is directly hostile to who you're trying to become?",
+      "ko": "어떤 환경, 관계, 또는 상황이 당신이 되고자 하는 사람과 정면으로 충돌하나요?"
+    },
+    {
+      "id": "part3_synthesis_8",
+      "part": 3,
+      "order": 8,
+      "en": "Who is the person who already lives this way? What would they do tomorrow?",
+      "ko": "이미 이런 삶을 살고 있는 사람은 누구인가요? 그들이라면 내일 무엇을 할까요?"
+    },
+    {
+      "id": "part3_synthesis_9",
+      "part": 3,
+      "order": 9,
+      "en": "What's the single constraint—the one rule, practice, or boundary—that would make everything else easier?",
+      "ko": "다른 모든 것을 더 쉽게 만들어줄 단 하나의 제약—하나의 규칙, 습관, 또는 경계—은 무엇인가요?"
+    }
+  ],
+  "part3Components": [
+    {
+      "id": "part3_component_antivision",
+      "part": 3,
+      "order": 1,
+      "en": "Anti-Vision: If nothing changes, what does your life look like in 5 years?",
+      "ko": "안티비전: 아무것도 변하지 않는다면, 5년 후 당신의 삶은 어떤 모습인가요?"
+    },
+    {
+      "id": "part3_component_vision",
+      "part": 3,
+      "order": 2,
+      "en": "Vision: What does your ideal life look like in 5 years?",
+      "ko": "비전: 5년 후 이상적인 삶은 어떤 모습인가요?"
+    },
+    {
+      "id": "part3_component_oneyear",
+      "part": 3,
+      "order": 3,
+      "en": "One-Year Goal: What's the single most important goal for this year?",
+      "ko": "1년 목표: 올해 가장 중요한 단 하나의 목표는 무엇인가요?"
+    },
+    {
+      "id": "part3_component_onemonth",
+      "part": 3,
+      "order": 4,
+      "en": "One-Month Project: What project will you complete this month toward that goal?",
+      "ko": "1개월 프로젝트: 그 목표를 향해 이번 달 완료할 프로젝트는 무엇인가요?"
+    },
+    {
+      "id": "part3_component_dailylevers",
+      "part": 3,
+      "order": 5,
+      "en": "Daily Levers: What 2-3 daily actions will move you toward your vision?",
+      "ko": "일일 레버: 비전을 향해 나아가게 할 매일의 2-3가지 행동은 무엇인가요?"
+    },
+    {
+      "id": "part3_component_constraints",
+      "part": 3,
+      "order": 6,
+      "en": "Constraints: What one rule or boundary makes everything else easier?",
+      "ko": "제약: 다른 모든 것을 더 쉽게 만드는 하나의 규칙이나 경계는 무엇인가요?"
+    }
+  ]
+}
