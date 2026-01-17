@@ -25,9 +25,17 @@ class OnboardingViewModel {
     }
 
     func createSession(modelContext: ModelContext) -> ProtocolSession {
+        let time = Calendar.current.dateComponents([.hour, .minute], from: wakeUpTime)
+        let combinedWakeTime = Calendar.current.date(
+            bySettingHour: time.hour ?? 7,
+            minute: time.minute ?? 0,
+            second: 0,
+            of: selectedDate
+        ) ?? selectedDate
+
         let session = ProtocolSession(
             startDate: selectedDate,
-            wakeUpTime: wakeUpTime,
+            wakeUpTime: combinedWakeTime,
             language: selectedLanguage
         )
         modelContext.insert(session)

@@ -44,7 +44,7 @@ struct HistoryView: View {
                                                 .font(.dpButton)
                                                 .foregroundColor(.dpPrimaryText)
                                             Spacer()
-                                            Image(systemName: "chevron.right")
+                                            Text("→")
                                                 .foregroundColor(.dpSecondaryText)
                                         }
                                         .padding(.vertical, Spacing.rowPadding)

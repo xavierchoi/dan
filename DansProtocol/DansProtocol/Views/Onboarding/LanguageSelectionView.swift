@@ -62,11 +62,6 @@ struct LanguageOption: View {
                     .foregroundColor(.dpPrimaryText)
 
                 Spacer()
-
-                if isSelected {
-                    Image(systemName: "checkmark")
-                        .foregroundColor(.dpPrimaryText)
-                }
             }
             .padding(.vertical, Spacing.elementSpacing)
             .padding(.horizontal, Spacing.screenPadding)

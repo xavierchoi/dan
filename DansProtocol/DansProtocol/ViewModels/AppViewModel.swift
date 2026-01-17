@@ -7,6 +7,7 @@ class AppViewModel {
     var appState: AppState = .loading
     var showingInterrupt: Bool = false
     var currentInterruptQuestionId: String?
+    var pendingNotificationId: String?
 
     enum AppState {
         case loading

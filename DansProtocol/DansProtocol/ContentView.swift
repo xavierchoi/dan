@@ -29,6 +29,10 @@ struct ContentView: View {
                         wakeUpTime: session.wakeUpTime,
                         language: session.language
                     )
+                    NotificationService.shared.scheduleMissedQuestionsReminder(
+                        wakeUpTime: session.wakeUpTime,
+                        language: session.language
+                    )
                 }
 
             case .part1:
