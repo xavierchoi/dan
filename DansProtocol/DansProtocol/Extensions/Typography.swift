@@ -24,10 +24,10 @@ extension Font {
     // Fallback if custom font not available
     static let dpQuestionFallback = Font.system(size: 28, weight: .regular, design: .serif)
 
-    // UI Elements - System font for clarity
-    static let dpBody = Font.system(size: 16, weight: .regular)
-    static let dpCaption = Font.system(size: 14, weight: .light)
-    static let dpButton = Font.system(size: 16, weight: .medium)
+    // UI Elements - System font with Dynamic Type support for accessibility
+    static let dpBody = Font.body
+    static let dpCaption = Font.caption
+    static let dpButton = Font.body.weight(.medium)
 
     // Dynamic question font based on text length (auto-size for long questions)
     static func dpQuestionAdaptive(for language: String, textLength: Int) -> Font {
