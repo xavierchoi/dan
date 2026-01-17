@@ -6,6 +6,7 @@ struct Part2WaitingView: View {
     var onStartPart3: () -> Void
 
     @Query private var entries: [JournalEntry]
+    @State private var selectedContemplationQuestionId: String?
 
     init(session: ProtocolSession, onStartPart3: @escaping () -> Void) {
         self.session = session
@@ -21,12 +22,20 @@ struct Part2WaitingView: View {
         QuestionService.shared.questions(for: 2, type: .interrupt)
     }
 
+    private var contemplationQuestions: [Question] {
+        QuestionService.shared.questions(for: 2, type: .contemplation)
+    }
+
     private func isAnswered(_ question: Question) -> Bool {
         entries.contains { $0.questionKey == question.id && !$0.response.isEmpty }
     }
 
     private var answeredCount: Int {
         interruptQuestions.filter { isAnswered($0) }.count
+    }
+
+    private var contemplationAnsweredCount: Int {
+        contemplationQuestions.filter { isAnswered($0) }.count
     }
 
     private var allAnswered: Bool {
@@ -74,6 +83,30 @@ struct Part2WaitingView: View {
                         }
                     }
 
+                    // Contemplation Questions Section
+                    if !contemplationQuestions.isEmpty {
+                        VStack(alignment: .leading, spacing: Spacing.elementSpacing) {
+                            Rectangle()
+                                .fill(Color.dpSeparator)
+                                .frame(height: 1)
+                                .padding(.top, Spacing.elementSpacing)
+
+                            Text(Part2Labels.additionalReflection(for: session.language))
+                                .font(.dpCaption)
+                                .foregroundColor(.dpSecondaryText)
+
+                            ForEach(contemplationQuestions) { question in
+                                ContemplationRow(
+                                    question: question,
+                                    language: session.language,
+                                    isAnswered: isAnswered(question)
+                                ) {
+                                    selectedContemplationQuestionId = question.id
+                                }
+                            }
+                        }
+                    }
+
                     Spacer(minLength: Spacing.sectionSpacing)
 
                     VStack(alignment: .leading, spacing: Spacing.elementSpacing) {
@@ -91,7 +124,57 @@ struct Part2WaitingView: View {
                 }
                 .padding(Spacing.screenPadding)
             }
+            .sheet(item: Binding(
+                get: { selectedContemplationQuestionId.map { ContemplationQuestionId(id: $0) } },
+                set: { selectedContemplationQuestionId = $0?.id }
+            )) { item in
+                InterruptView(
+                    session: session,
+                    questionId: item.id,
+                    questionType: .contemplation
+                ) {
+                    selectedContemplationQuestionId = nil
+                }
+            }
         }
+    }
+}
+
+// Helper for sheet presentation
+private struct ContemplationQuestionId: Identifiable {
+    let id: String
+}
+
+struct ContemplationRow: View {
+    let question: Question
+    let language: String
+    let isAnswered: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(alignment: .top, spacing: 12) {
+                Text(isAnswered ? "✓" : "○")
+                    .font(.dpBody)
+                    .foregroundColor(isAnswered ? .dpPrimaryText : .dpSecondaryText)
+                    .frame(width: 20)
+
+                Text(question.text(for: language))
+                    .font(.dpBody)
+                    .foregroundColor(isAnswered ? .dpPrimaryText : .dpSecondaryText)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+
+                Spacer()
+
+                Text("→")
+                    .font(.dpBody)
+                    .foregroundColor(.dpSecondaryText)
+            }
+            .padding(.vertical, 8)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 

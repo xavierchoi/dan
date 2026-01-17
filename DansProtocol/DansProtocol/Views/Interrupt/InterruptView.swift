@@ -7,11 +7,12 @@ struct InterruptView: View {
 
     let session: ProtocolSession
     let questionId: String
+    var questionType: QuestionService.QuestionType = .interrupt
     var onDismiss: (() -> Void)?
     @State private var response: String = ""
 
     private var question: Question? {
-        QuestionService.shared.questions(for: 2, type: .interrupt)
+        QuestionService.shared.questions(for: 2, type: questionType)
             .first { $0.id == questionId }
     }
 
