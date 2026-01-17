@@ -7,6 +7,7 @@ struct InterruptView: View {
 
     let session: ProtocolSession
     let questionId: String
+    var onDismiss: (() -> Void)?
     @State private var response: String = ""
 
     private var question: Question? {
@@ -35,7 +36,7 @@ struct InterruptView: View {
                 Spacer()
 
                 HStack {
-                    TextButton(title: NavLabels.skip(for: session.language), action: { dismiss() })
+                    TextButton(title: NavLabels.skip(for: session.language), action: dismissView)
 
                     Spacer()
 
@@ -51,6 +52,11 @@ struct InterruptView: View {
         }
     }
 
+    private func dismissView() {
+        dismiss()
+        onDismiss?()
+    }
+
     private func saveAndDismiss() {
         guard let question = question else { return }
 
@@ -62,7 +68,7 @@ struct InterruptView: View {
         entry.session = session
         modelContext.insert(entry)
 
-        dismiss()
+        dismissView()
     }
 }
 

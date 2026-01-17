@@ -45,6 +45,7 @@ class NotificationService {
         content.title = title
         content.body = body
         content.sound = .default
+        content.userInfo = ["questionId": id]
 
         let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date)
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)

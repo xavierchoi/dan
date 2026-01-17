@@ -80,7 +80,28 @@ struct ContentView: View {
             viewModel.determineState(sessions: sessions)
         }
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $viewModel.showingInterrupt) {
+            if let session = viewModel.currentSession,
+               let questionId = viewModel.currentInterruptQuestionId {
+                InterruptView(
+                    session: session,
+                    questionId: questionId,
+                    onDismiss: {
+                        viewModel.dismissInterrupt()
+                    }
+                )
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .didTapNotification)) { notification in
+            if let questionId = notification.userInfo?["questionId"] as? String {
+                viewModel.handleNotificationTap(questionId: questionId)
+            }
+        }
     }
+}
+
+extension Notification.Name {
+    static let didTapNotification = Notification.Name("didTapNotification")
 }
 
 #Preview {

@@ -58,9 +58,16 @@ struct NotificationPermissionView: View {
     }
 
     private func requestPermission() {
-        // TODO: Implement actual notification permission request in Task 6.1
-        // For now, just continue to the next step
-        onContinue()
+        Task {
+            let granted = await NotificationService.shared.requestPermission()
+            await MainActor.run {
+                if granted {
+                    onContinue()
+                } else {
+                    permissionDenied = true
+                }
+            }
+        }
     }
 }
 

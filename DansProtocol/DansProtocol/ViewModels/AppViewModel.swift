@@ -5,6 +5,8 @@ import SwiftData
 class AppViewModel {
     var currentSession: ProtocolSession?
     var appState: AppState = .loading
+    var showingInterrupt: Bool = false
+    var currentInterruptQuestionId: String?
 
     enum AppState {
         case loading
@@ -40,5 +42,17 @@ class AppViewModel {
     func startNewSession() {
         currentSession = nil
         appState = .onboarding
+    }
+
+    func handleNotificationTap(questionId: String) {
+        // Only handle interrupt notifications during Part 2
+        guard appState == .part2Waiting else { return }
+        currentInterruptQuestionId = questionId
+        showingInterrupt = true
+    }
+
+    func dismissInterrupt() {
+        showingInterrupt = false
+        currentInterruptQuestionId = nil
     }
 }
