@@ -4,33 +4,72 @@ struct HistoryView: View {
     let sessions: [ProtocolSession]
     var onStartNew: () -> Void
 
+    private var completedSessions: [ProtocolSession] {
+        sessions
+            .filter { $0.status == .completed }
+            .sorted { ($0.completedAt ?? .distantPast) > ($1.completedAt ?? .distantPast) }
+    }
+
     var body: some View {
-        ZStack {
-            Color.dpBackground.ignoresSafeArea()
+        NavigationStack {
+            ZStack {
+                Color.dpBackground.ignoresSafeArea()
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: Spacing.sectionSpacing) {
-                    Text("History")
-                        .font(.dpQuestionLarge)
-                        .foregroundColor(.dpPrimaryText)
-                        .padding(.top, Spacing.questionTopPadding)
+                ScrollView {
+                    VStack(alignment: .leading, spacing: Spacing.sectionSpacing) {
+                        Text("Your Journey")
+                            .font(.dpQuestionLarge)
+                            .foregroundColor(.dpPrimaryText)
+                            .padding(.top, Spacing.questionTopPadding)
 
-                    if sessions.isEmpty {
-                        Text("No completed sessions yet.")
-                            .font(.dpBody)
-                            .foregroundColor(.dpSecondaryText)
-                    } else {
-                        ForEach(sessions.sorted(by: { $0.startDate > $1.startDate })) { session in
-                            SessionRow(session: session)
+                        if completedSessions.isEmpty {
+                            Text("No completed sessions yet")
+                                .font(.dpBody)
+                                .foregroundColor(.dpSecondaryText)
+                        } else {
+                            VStack(alignment: .leading, spacing: Spacing.elementSpacing) {
+                                if completedSessions.count >= 2 {
+                                    NavigationLink {
+                                        SessionComparisonView(
+                                            current: completedSessions[0],
+                                            previous: completedSessions[1]
+                                        )
+                                    } label: {
+                                        HStack {
+                                            Text("Compare with previous")
+                                                .font(.dpButton)
+                                                .foregroundColor(.dpPrimaryText)
+                                            Spacer()
+                                            Image(systemName: "chevron.right")
+                                                .foregroundColor(.dpSecondaryText)
+                                        }
+                                        .padding(.vertical, 12)
+                                    }
+
+                                    Rectangle()
+                                        .fill(Color.dpSeparator)
+                                        .frame(height: 1)
+                                        .padding(.bottom, Spacing.elementSpacing)
+                                }
+
+                                ForEach(completedSessions) { session in
+                                    NavigationLink {
+                                        SessionDetailView(session: session)
+                                    } label: {
+                                        SessionRow(session: session)
+                                    }
+                                }
+                            }
                         }
+
+                        Spacer(minLength: Spacing.sectionSpacing)
+
+                        TextButton(title: "Start New Protocol", action: onStartNew)
                     }
-
-                    Spacer(minLength: Spacing.sectionSpacing)
-
-                    TextButton(title: "Start New Protocol", action: onStartNew)
+                    .padding(Spacing.screenPadding)
                 }
-                .padding(Spacing.screenPadding)
             }
+            .navigationBarHidden(true)
         }
     }
 }
@@ -38,19 +77,26 @@ struct HistoryView: View {
 struct SessionRow: View {
     let session: ProtocolSession
 
-    private var dateFormatter: DateFormatter {
+    private var dateString: String {
+        guard let completedAt = session.completedAt else {
+            return ""
+        }
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter
+        formatter.dateStyle = .long
+        return formatter.string(from: completedAt)
+    }
+
+    private var statusText: String {
+        session.language == "ko" ? "완료됨" : "Completed"
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.lineSpacing) {
-            Text(dateFormatter.string(from: session.startDate))
+            Text(dateString)
                 .font(.dpBody)
                 .foregroundColor(.dpPrimaryText)
 
-            Text(session.status == .completed ? "Completed" : "In Progress")
+            Text(statusText)
                 .font(.dpCaption)
                 .foregroundColor(.dpSecondaryText)
 
