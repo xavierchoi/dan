@@ -43,7 +43,7 @@ struct HistoryView: View {
                                             Image(systemName: "chevron.right")
                                                 .foregroundColor(.dpSecondaryText)
                                         }
-                                        .padding(.vertical, 12)
+                                        .padding(.vertical, Spacing.rowPadding)
                                     }
 
                                     Rectangle()
@@ -78,12 +78,7 @@ struct SessionRow: View {
     let session: ProtocolSession
 
     private var dateString: String {
-        guard let completedAt = session.completedAt else {
-            return ""
-        }
-        let formatter = DateFormatter()
-        formatter.dateStyle = .long
-        return formatter.string(from: completedAt)
+        session.completedAt?.longDateString ?? ""
     }
 
     private var statusText: String {
@@ -104,7 +99,7 @@ struct SessionRow: View {
                 .fill(Color.dpSeparator)
                 .frame(height: 1)
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, Spacing.lineSpacing)
     }
 }
 

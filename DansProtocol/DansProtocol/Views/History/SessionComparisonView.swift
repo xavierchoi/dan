@@ -5,18 +5,11 @@ struct SessionComparisonView: View {
     let previous: ProtocolSession
 
     private var currentDateString: String {
-        formatDate(current.completedAt)
+        current.completedAt?.monthYearString ?? ""
     }
 
     private var previousDateString: String {
-        formatDate(previous.completedAt)
-    }
-
-    private func formatDate(_ date: Date?) -> String {
-        guard let date = date else { return "" }
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM yyyy"
-        return formatter.string(from: date)
+        previous.completedAt?.monthYearString ?? ""
     }
 
     private var language: String {
@@ -36,50 +29,51 @@ struct SessionComparisonView: View {
 
                     ComparisonHeader(
                         previousDate: previousDateString,
-                        currentDate: currentDateString
+                        currentDate: currentDateString,
+                        language: language
                     )
 
                     if let currentComponents = current.components,
                        let previousComponents = previous.components {
                         VStack(alignment: .leading, spacing: Spacing.elementSpacing) {
                             ComparisonRow(
-                                title: language == "ko" ? "안티비전" : "Anti-Vision",
+                                title: ComponentLabels.antiVision(for: language),
                                 previousValue: previousComponents.antiVision,
                                 currentValue: currentComponents.antiVision
                             )
 
                             ComparisonRow(
-                                title: language == "ko" ? "비전" : "Vision",
+                                title: ComponentLabels.vision(for: language),
                                 previousValue: previousComponents.vision,
                                 currentValue: currentComponents.vision
                             )
 
                             ComparisonRow(
-                                title: language == "ko" ? "1년 목표" : "1-Year Goal",
+                                title: ComponentLabels.oneYearGoal(for: language),
                                 previousValue: previousComponents.oneYearGoal,
                                 currentValue: currentComponents.oneYearGoal
                             )
 
                             ComparisonRow(
-                                title: language == "ko" ? "1개월 프로젝트" : "1-Month Project",
+                                title: ComponentLabels.oneMonthProject(for: language),
                                 previousValue: previousComponents.oneMonthProject,
                                 currentValue: currentComponents.oneMonthProject
                             )
 
                             ComparisonRow(
-                                title: language == "ko" ? "일일 레버" : "Daily Levers",
+                                title: ComponentLabels.dailyLevers(for: language),
                                 previousValue: previousComponents.dailyLevers.joined(separator: " • "),
                                 currentValue: currentComponents.dailyLevers.joined(separator: " • ")
                             )
 
                             ComparisonRow(
-                                title: language == "ko" ? "제약 조건" : "Constraints",
+                                title: ComponentLabels.constraints(for: language),
                                 previousValue: previousComponents.constraints,
                                 currentValue: currentComponents.constraints
                             )
                         }
                     } else {
-                        Text(language == "ko" ? "비교 데이터 없음" : "No comparison data available")
+                        Text(ComponentLabels.noComparisonData(for: language))
                             .font(.dpBody)
                             .foregroundColor(.dpSecondaryText)
                     }
@@ -94,11 +88,12 @@ struct SessionComparisonView: View {
 struct ComparisonHeader: View {
     let previousDate: String
     let currentDate: String
+    let language: String
 
     var body: some View {
         HStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("THEN")
+            VStack(alignment: .leading, spacing: Spacing.smallSpacing) {
+                Text(ComponentLabels.then(for: language))
                     .font(.dpCaption)
                     .foregroundColor(.dpSecondaryText)
                     .tracking(1)
@@ -112,8 +107,8 @@ struct ComparisonHeader: View {
                 .fill(Color.dpSeparator)
                 .frame(width: 1, height: 40)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text("NOW")
+            VStack(alignment: .leading, spacing: Spacing.smallSpacing) {
+                Text(ComponentLabels.now(for: language))
                     .font(.dpCaption)
                     .foregroundColor(.dpPrimaryText)
                     .tracking(1)

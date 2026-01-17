@@ -4,12 +4,11 @@ struct SessionDetailView: View {
     let session: ProtocolSession
 
     private var dateString: String {
-        guard let completedAt = session.completedAt else {
-            return ""
-        }
-        let formatter = DateFormatter()
-        formatter.dateStyle = .long
-        return formatter.string(from: completedAt)
+        session.completedAt?.longDateString ?? ""
+    }
+
+    private var language: String {
+        session.language
     }
 
     var body: some View {
@@ -26,38 +25,38 @@ struct SessionDetailView: View {
                     if let components = session.components {
                         VStack(alignment: .leading, spacing: Spacing.elementSpacing) {
                             ComponentSection(
-                                title: session.language == "ko" ? "안티비전" : "Anti-Vision",
+                                title: ComponentLabels.antiVision(for: language),
                                 value: components.antiVision
                             )
 
                             ComponentSection(
-                                title: session.language == "ko" ? "비전" : "Vision",
+                                title: ComponentLabels.vision(for: language),
                                 value: components.vision
                             )
 
                             ComponentSection(
-                                title: session.language == "ko" ? "1년 목표" : "1-Year Goal",
+                                title: ComponentLabels.oneYearGoal(for: language),
                                 value: components.oneYearGoal
                             )
 
                             ComponentSection(
-                                title: session.language == "ko" ? "1개월 프로젝트" : "1-Month Project",
+                                title: ComponentLabels.oneMonthProject(for: language),
                                 value: components.oneMonthProject
                             )
 
                             ComponentSection(
-                                title: session.language == "ko" ? "일일 레버" : "Daily Levers",
+                                title: ComponentLabels.dailyLevers(for: language),
                                 value: components.dailyLevers.joined(separator: " • ")
                             )
 
                             ComponentSection(
-                                title: session.language == "ko" ? "제약 조건" : "Constraints",
+                                title: ComponentLabels.constraints(for: language),
                                 value: components.constraints,
                                 showSeparator: false
                             )
                         }
                     } else {
-                        Text(session.language == "ko" ? "데이터 없음" : "No data available")
+                        Text(ComponentLabels.noData(for: language))
                             .font(.dpBody)
                             .foregroundColor(.dpSecondaryText)
                     }
