@@ -11,29 +11,31 @@ struct NotificationPermissionView: View {
             Spacer()
 
             VStack(spacing: Spacing.sectionSpacing * 1.5) {
-                Text(language == "ko" ? "알림을 활성화하세요" : "Enable notifications")
+                Text(OnboardingLabels.enableNotificationsTitle(for: language))
                     .font(.dpQuestionLarge(for: language))
                     .foregroundColor(.dpPrimaryText)
                     .multilineTextAlignment(.center)
 
                 if permissionDenied {
                     VStack(spacing: Spacing.elementSpacing) {
-                        Text(language == "ko" ? "알림이 비활성화되어 있습니다" : "Notifications are disabled")
+                        Text(OnboardingLabels.notificationsDisabled(for: language))
                             .font(.dpBody)
                             .foregroundColor(.dpSecondaryText)
                             .multilineTextAlignment(.center)
 
-                        Text(language == "ko"
-                             ? "Part 2 중단 알림을 받으려면 나중에 설정에서 활성화할 수 있습니다."
-                             : "You can enable them later in Settings to receive Part 2 interruptions.")
+                        Text(OnboardingLabels.enableLaterInSettings(for: language))
                             .font(.dpCaption)
                             .foregroundColor(.dpSecondaryText)
                             .multilineTextAlignment(.center)
+
+                        TextButton(
+                            title: OnboardingLabels.openSettings(for: language),
+                            action: openSettings
+                        )
+                        .padding(.top, Spacing.elementSpacing)
                     }
                 } else {
-                    Text(language == "ko"
-                         ? "Part 2에서는 하루 종일 무작위 알림이 필요합니다. 예상치 못한 순간에 성찰을 유도하는 알림을 보내드립니다."
-                         : "Part 2 requires random interruptions throughout the day. We'll send you notifications to prompt reflection at unexpected moments.")
+                    Text(OnboardingLabels.notificationExplanation(for: language))
                         .font(.dpBody)
                         .foregroundColor(.dpSecondaryText)
                         .multilineTextAlignment(.center)
@@ -45,18 +47,18 @@ struct NotificationPermissionView: View {
             VStack(spacing: Spacing.elementSpacing) {
                 if !permissionDenied {
                     TextButton(
-                        title: language == "ko" ? "알림 활성화" : "Enable Notifications",
+                        title: OnboardingLabels.enableNotificationsButton(for: language),
                         action: requestPermission
                     )
                 }
 
                 HStack {
-                    TextButton(title: language == "ko" ? "← 이전" : "← Back", action: onBack)
+                    TextButton(title: NavLabels.back(for: language), action: onBack)
                     Spacer()
                     TextButton(
                         title: permissionDenied
-                            ? (language == "ko" ? "그냥 계속 →" : "Continue anyway →")
-                            : (language == "ko" ? "건너뛰기 →" : "Skip →"),
+                            ? OnboardingLabels.continueAnyway(for: language)
+                            : OnboardingLabels.skipButton(for: language),
                         action: onContinue
                     )
                 }
@@ -77,6 +79,12 @@ struct NotificationPermissionView: View {
                     permissionDenied = true
                 }
             }
+        }
+    }
+
+    private func openSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
         }
     }
 }

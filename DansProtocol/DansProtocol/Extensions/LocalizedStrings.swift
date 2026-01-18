@@ -81,6 +81,10 @@ enum OnboardingLabels {
         language == "ko" ? "건너뛰기 →" : "Skip →"
     }
 
+    static func openSettings(for language: String) -> String {
+        language == "ko" ? "설정 열기" : "Open Settings"
+    }
+
     // MARK: - Ready Step
 
     static func youAreReady(for language: String) -> String {
