@@ -11,6 +11,7 @@ settings:
     SWIFT_VERSION: "5.9"
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
     DEVELOPMENT_TEAM: ""
+    TARGETED_DEVICE_FAMILY: "1"
 
 targets:
   DansProtocol:
