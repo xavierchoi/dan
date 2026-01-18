@@ -122,6 +122,12 @@ enum OnboardingLabels {
     static func startPart1(for language: String) -> String {
         language == "ko" ? "Part 1 시작 →" : "Start Part 1 →"
     }
+
+    static func todayWarning(for language: String) -> String {
+        language == "ko"
+            ? "오늘을 선택하면 일부 알림이 전송되지 않을 수 있습니다. 내일부터 시작하는 것을 권장합니다."
+            : "Selecting today may cause some notifications to be missed. We recommend starting tomorrow."
+    }
 }
 
 // MARK: - Part 2

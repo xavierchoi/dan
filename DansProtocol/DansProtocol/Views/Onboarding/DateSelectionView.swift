@@ -17,7 +17,7 @@ struct DateSelectionView: View {
             Spacer()
 
             VStack(spacing: Spacing.sectionSpacing * 1.5) {
-                Text(language == "ko" ? "프로토콜 데이는 언제인가요?" : "When is your Protocol Day?")
+                Text(OnboardingLabels.whenIsProtocolDay(for: language))
                     .font(.dpQuestionLarge(for: language))
                     .foregroundColor(.dpPrimaryText)
                     .multilineTextAlignment(.center)
@@ -31,14 +31,22 @@ struct DateSelectionView: View {
                 .datePickerStyle(.graphical)
                 .colorScheme(.dark)
                 .tint(.dpPrimaryText)
+
+                if Calendar.current.isDateInToday(selectedDate) {
+                    Text(OnboardingLabels.todayWarning(for: language))
+                        .font(.dpCaption)
+                        .foregroundColor(.dpSecondaryText)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, Spacing.screenPadding)
+                }
             }
 
             Spacer()
 
             HStack {
-                TextButton(title: language == "ko" ? "← 이전" : "← Back", action: onBack)
+                TextButton(title: NavLabels.back(for: language), action: onBack)
                 Spacer()
-                TextButton(title: language == "ko" ? "계속 →" : "Continue →", action: onContinue)
+                TextButton(title: NavLabels.continueButton(for: language), action: onContinue)
             }
             .padding(.bottom, Spacing.sectionSpacing * 1.5)
         }
