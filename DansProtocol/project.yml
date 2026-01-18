@@ -32,7 +32,6 @@ targets:
       - path: DansProtocol/Resources/Fonts/NotoSerifKR-VariableFont_wght.ttf
         type: file
         buildPhase: resources
-    resources:
       - path: DansProtocol/Resources/Assets.xcassets
     settings:
       base:
