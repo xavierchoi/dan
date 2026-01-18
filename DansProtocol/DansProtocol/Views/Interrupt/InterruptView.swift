@@ -11,6 +11,9 @@ struct InterruptView: View {
     var onDismiss: (() -> Void)?
     @State private var response: String = ""
 
+    /// Controls the chromatic aberration glitch effect on appear
+    @State private var showGlitch = false
+
     private var question: Question? {
         QuestionService.shared.questions(for: 2, type: questionType)
             .first { $0.id == questionId }
@@ -37,18 +40,34 @@ struct InterruptView: View {
                 Spacer()
 
                 HStack {
-                    TextButton(title: NavLabels.skip(for: session.language), action: dismissView)
+                    TextButton(title: NavLabels.skip(for: session.language), action: handleSkip)
 
                     Spacer()
 
                     TextButton(
                         title: NavLabels.save(for: session.language),
-                        action: saveAndDismiss,
+                        action: handleSave,
                         isEnabled: !response.isEmpty
                     )
                 }
                 .padding(Spacing.screenPadding)
                 .padding(.bottom, Spacing.screenPadding)
+            }
+        }
+        // Edge glow: always full brightness, always pulsing for urgency
+        .edgeGlow(progress: 1.0, position: .frame, pulsing: true)
+        // Chromatic aberration: jarring glitch on appear
+        .chromaticAberration(isActive: showGlitch, offset: 5)
+        // Dithering: higher intensity (0.5) than JournalingView, always animated
+        .ditheringOverlay(intensity: 0.5, animated: true)
+        .onAppear {
+            // Instant appear with immediate glitch effect - no fade in
+            showGlitch = true
+            // Staccato 3x burst haptic for jarring disruption
+            HapticEngine.shared.interruptBurst()
+            // Reset glitch after effect completes
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                showGlitch = false
             }
         }
     }
@@ -58,8 +77,17 @@ struct InterruptView: View {
         onDismiss?()
     }
 
-    private func saveAndDismiss() {
+    /// Handle skip button with haptic feedback
+    private func handleSkip() {
+        HapticEngine.shared.buttonTap()
+        dismissView()
+    }
+
+    /// Handle save button with haptic feedback
+    private func handleSave() {
         guard let question = question else { return }
+
+        HapticEngine.shared.buttonTap()
 
         let entry = JournalEntry(
             part: 2,
