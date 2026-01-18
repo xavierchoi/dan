@@ -267,3 +267,25 @@ enum ComponentLabels {
         language == "ko" ? "현재" : "NOW"
     }
 }
+
+// MARK: - Alert Labels
+
+enum AlertLabels {
+    static func unansweredQuestionsTitle(for language: String) -> String {
+        language == "ko" ? "미답변 질문이 있습니다" : "Unanswered Questions"
+    }
+
+    static func unansweredQuestionsMessage(count: Int, for language: String) -> String {
+        language == "ko"
+            ? "\(count)개의 인터럽트 질문에 답하지 않았습니다. 계속하시겠습니까?"
+            : "You haven't answered \(count) interrupt question(s). Continue anyway?"
+    }
+
+    static func continueAnyway(for language: String) -> String {
+        language == "ko" ? "계속하기" : "Continue"
+    }
+
+    static func goBack(for language: String) -> String {
+        language == "ko" ? "돌아가기" : "Go Back"
+    }
+}

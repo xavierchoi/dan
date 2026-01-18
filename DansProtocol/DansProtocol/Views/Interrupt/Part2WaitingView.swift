@@ -7,6 +7,7 @@ struct Part2WaitingView: View {
 
     @Query private var entries: [JournalEntry]
     @State private var selectedContemplationQuestionId: String?
+    @State private var showUnansweredAlert = false
 
     init(session: ProtocolSession, onStartPart3: @escaping () -> Void) {
         self.session = session
@@ -36,6 +37,10 @@ struct Part2WaitingView: View {
 
     private var allAnswered: Bool {
         answeredCount == interruptQuestions.count
+    }
+
+    private var unansweredCount: Int {
+        interruptQuestions.count - answeredCount
     }
 
     var body: some View {
@@ -119,7 +124,13 @@ struct Part2WaitingView: View {
 
                         TextButton(
                             title: Part2Labels.startPart3(for: session.language),
-                            action: onStartPart3,
+                            action: {
+                                if allAnswered {
+                                    onStartPart3()
+                                } else {
+                                    showUnansweredAlert = true
+                                }
+                            },
                             prominence: allAnswered ? .primary : .secondary
                         )
                     }
@@ -137,6 +148,17 @@ struct Part2WaitingView: View {
                 ) {
                     selectedContemplationQuestionId = nil
                 }
+            }
+            .alert(
+                AlertLabels.unansweredQuestionsTitle(for: session.language),
+                isPresented: $showUnansweredAlert
+            ) {
+                Button(AlertLabels.goBack(for: session.language), role: .cancel) { }
+                Button(AlertLabels.continueAnyway(for: session.language)) {
+                    onStartPart3()
+                }
+            } message: {
+                Text(AlertLabels.unansweredQuestionsMessage(count: unansweredCount, for: session.language))
             }
         }
     }
