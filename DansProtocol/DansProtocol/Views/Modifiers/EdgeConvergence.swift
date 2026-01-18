@@ -47,9 +47,6 @@ struct EdgeConvergence: ViewModifier {
 
     // MARK: - Animation State
 
-    /// Master animation progress (0 = hidden, 1 = fully visible)
-    @State private var convergenceProgress: CGFloat = 0
-
     /// Scale of the content
     @State private var scale: CGFloat = 0.95
 
@@ -68,47 +65,61 @@ struct EdgeConvergence: ViewModifier {
     /// Track if entrance animation has completed
     @State private var hasAppeared: Bool = false
 
+    /// Task for managing animation lifecycle
+    @State private var animationTask: Task<Void, Never>?
+
+    /// Accessibility: Reduce Motion setting
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     // MARK: - Color Tints for Chromatic Effect
 
     private let redTint = Color(red: 1.0, green: 0.3, blue: 0.3)
     private let cyanTint = Color(red: 0.3, green: 1.0, blue: 1.0)
 
     func body(content: Content) -> some View {
-        ZStack {
-            // Chromatic red channel - offset during transition
+        // Accessibility: Skip animations when Reduce Motion is enabled
+        if reduceMotion {
             content
-                .colorMultiply(redTint)
-                .offset(x: -chromaticSplit, y: -chromaticSplit * 0.5)
-                .opacity(chromaticSplit > 0 ? 0.3 : 0)
-                .blendMode(.plusLighter)
+        } else {
+            ZStack {
+                // Chromatic red channel - offset during transition
+                content
+                    .colorMultiply(redTint)
+                    .offset(x: -chromaticSplit, y: -chromaticSplit * 0.5)
+                    .opacity(chromaticSplit > 0 ? 0.3 : 0)
+                    .blendMode(.plusLighter)
 
-            // Chromatic cyan channel - offset opposite direction
-            content
-                .colorMultiply(cyanTint)
-                .offset(x: chromaticSplit, y: chromaticSplit * 0.5)
-                .opacity(chromaticSplit > 0 ? 0.3 : 0)
-                .blendMode(.plusLighter)
+                // Chromatic cyan channel - offset opposite direction
+                content
+                    .colorMultiply(cyanTint)
+                    .offset(x: chromaticSplit, y: chromaticSplit * 0.5)
+                    .opacity(chromaticSplit > 0 ? 0.3 : 0)
+                    .blendMode(.plusLighter)
 
-            // Main content with convergence effect
-            content
-                .scaleEffect(scale)
-                .blur(radius: blur)
-                .opacity(opacity)
-                .mask(
-                    // Four-edge convergence mask
-                    ConvergenceMask(inset: maskInset)
-                )
-        }
-        .onAppear {
-            guard !hasAppeared else { return }
-            performEntranceAnimation()
-        }
-        .onChange(of: isExiting) { oldValue, newValue in
-            if newValue && !oldValue {
-                performExitAnimation()
-            } else if !newValue && oldValue {
-                // Reset for re-entrance
-                resetForReentrance()
+                // Main content with convergence effect
+                content
+                    .scaleEffect(scale)
+                    .blur(radius: blur)
+                    .opacity(opacity)
+                    .mask(
+                        // Four-edge convergence mask
+                        ConvergenceMask(inset: maskInset)
+                    )
+            }
+            .onAppear {
+                guard !hasAppeared else { return }
+                performEntranceAnimation()
+            }
+            .onDisappear {
+                animationTask?.cancel()
+            }
+            .onChange(of: isExiting) { oldValue, newValue in
+                if newValue && !oldValue {
+                    performExitAnimation()
+                } else if !newValue && oldValue {
+                    // Reset for re-entrance
+                    resetForReentrance()
+                }
             }
         }
     }
@@ -117,31 +128,39 @@ struct EdgeConvergence: ViewModifier {
 
     /// Dramatic entrance: fragments converge from edges
     private func performEntranceAnimation() {
-        // Start with chromatic split visible briefly
-        chromaticSplit = chromaticOffset
+        animationTask?.cancel()
 
-        // Phase 1: Quick chromatic flash (0.1s)
-        withAnimation(.easeOut(duration: 0.1)) {
-            opacity = 0.4
-        }
+        animationTask = Task { @MainActor in
+            // Start with chromatic split visible briefly
+            chromaticSplit = chromaticOffset
 
-        // Phase 2: Convergence with spring (0.5s) - starts immediately
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
-            scale = 1.0
-            blur = 0
-            opacity = 1.0
-            maskInset = 0
-        }
+            // Phase 1: Quick chromatic flash (0.1s)
+            withAnimation(.easeOut(duration: 0.1)) {
+                opacity = 0.4
+            }
 
-        // Phase 3: Chromatic channels converge (0.15s delay, then 0.1s)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            // Phase 2: Convergence with spring (0.5s) - starts immediately
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
+                scale = 1.0
+                blur = 0
+                opacity = 1.0
+                maskInset = 0
+            }
+
+            // Phase 3: Chromatic channels converge (0.15s delay, then 0.1s)
+            guard !Task.isCancelled else { return }
+            try? await Task.sleep(for: .milliseconds(150))
+
+            guard !Task.isCancelled else { return }
             withAnimation(.easeOut(duration: 0.1)) {
                 chromaticSplit = 0
             }
-        }
 
-        // Mark as appeared
-        DispatchQueue.main.asyncAfter(deadline: .now() + entranceDuration) {
+            // Mark as appeared
+            guard !Task.isCancelled else { return }
+            try? await Task.sleep(for: .seconds(entranceDuration))
+
+            guard !Task.isCancelled else { return }
             hasAppeared = true
         }
     }
@@ -164,16 +183,22 @@ struct EdgeConvergence: ViewModifier {
 
     /// Reset state for potential re-entrance
     private func resetForReentrance() {
-        // Instantly reset to initial state
-        scale = initialScale
-        blur = initialBlur
-        opacity = 0
-        maskInset = edgeOffset
-        chromaticSplit = 0
-        hasAppeared = false
+        animationTask?.cancel()
 
-        // Trigger entrance again
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+        animationTask = Task { @MainActor in
+            // Instantly reset to initial state
+            scale = initialScale
+            blur = initialBlur
+            opacity = 0
+            maskInset = edgeOffset
+            chromaticSplit = 0
+            hasAppeared = false
+
+            // Trigger entrance again
+            guard !Task.isCancelled else { return }
+            try? await Task.sleep(for: .milliseconds(50))
+
+            guard !Task.isCancelled else { return }
             performEntranceAnimation()
         }
     }
@@ -244,7 +269,7 @@ extension View {
 #Preview("Edge Convergence - Entrance Only") {
     VStack(spacing: 40) {
         Text("What is the dull and persistent dissatisfaction you've learned to live with?")
-            .font(.custom("PlayfairDisplay-Regular", size: 24))
+            .font(.custom("Playfair Display", size: 24))
             .foregroundColor(.dpPrimaryText)
             .multilineTextAlignment(.leading)
             .edgeConvergence()
@@ -257,7 +282,7 @@ extension View {
 #Preview("Edge Convergence - Korean") {
     VStack(spacing: 40) {
         Text("당신이 삶의 일부로 받아들인, 희미하지만 끊이지 않는 불만족은 무엇인가요?")
-            .font(.custom("NotoSerifKR-Regular", size: 24))
+            .font(.custom("Noto Serif KR", size: 24))
             .foregroundColor(.dpPrimaryText)
             .multilineTextAlignment(.leading)
             .edgeConvergence()
@@ -272,6 +297,7 @@ private struct EdgeConvergencePreview: View {
     @State private var isExiting = false
     @State private var questionIndex = 0
     @State private var showQuestion = true
+    @State private var previewTask: Task<Void, Never>?
 
     private let questions = [
         "What is the dull and persistent dissatisfaction you've learned to live with?",
@@ -289,7 +315,7 @@ private struct EdgeConvergencePreview: View {
 
             if showQuestion {
                 Text(questions[questionIndex])
-                    .font(.custom("PlayfairDisplay-Regular", size: 24))
+                    .font(.custom("Playfair Display", size: 24))
                     .foregroundColor(.dpPrimaryText)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -329,27 +355,40 @@ private struct EdgeConvergencePreview: View {
     }
 
     private func triggerExit() {
+        previewTask?.cancel()
         isExiting = true
 
         // Reset after animation completes
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        previewTask = Task { @MainActor in
+            guard !Task.isCancelled else { return }
+            try? await Task.sleep(for: .milliseconds(500))
+
+            guard !Task.isCancelled else { return }
             isExiting = false
         }
     }
 
     private func cycleQuestion() {
+        previewTask?.cancel()
+
         // Exit current
         isExiting = true
 
         // Swap question and re-enter
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+        previewTask = Task { @MainActor in
+            guard !Task.isCancelled else { return }
+            try? await Task.sleep(for: .milliseconds(400))
+
+            guard !Task.isCancelled else { return }
             showQuestion = false
             questionIndex = (questionIndex + 1) % questions.count
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                isExiting = false
-                showQuestion = true
-            }
+            guard !Task.isCancelled else { return }
+            try? await Task.sleep(for: .milliseconds(100))
+
+            guard !Task.isCancelled else { return }
+            isExiting = false
+            showQuestion = true
         }
     }
 }

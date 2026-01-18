@@ -40,36 +40,57 @@ struct Afterimage: ViewModifier {
     /// Scale of the ghost overlay
     @State private var ghostScale: CGFloat = 1.0
 
+    /// Task for managing animation lifecycle
+    @State private var animationTask: Task<Void, Never>?
+
+    /// Accessibility: Reduce Motion setting
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func body(content: Content) -> some View {
-        content
-            .opacity(contentOpacity)
-            .overlay {
-                // Ghost copy - only visible during the afterimage effect
-                content
-                    .opacity(ghostOpacity)
-                    .scaleEffect(ghostScale)
-            }
-            .onChange(of: isActive) { oldValue, newValue in
-                if newValue && !oldValue {
-                    // Transitioning out - start afterimage sequence
-                    startAfterimageSequence()
-                } else if !newValue && oldValue {
-                    // Reset to initial state
-                    resetState()
+        // Accessibility: Skip animations when Reduce Motion is enabled
+        if reduceMotion {
+            content
+                .opacity(isActive ? 0 : 1)  // Simple fade without ghost effect
+        } else {
+            content
+                .opacity(contentOpacity)
+                .overlay {
+                    // Ghost copy - only visible during the afterimage effect
+                    content
+                        .opacity(ghostOpacity)
+                        .scaleEffect(ghostScale)
                 }
-            }
+                .onChange(of: isActive) { oldValue, newValue in
+                    if newValue && !oldValue {
+                        // Transitioning out - start afterimage sequence
+                        startAfterimageSequence()
+                    } else if !newValue && oldValue {
+                        // Reset to initial state
+                        resetState()
+                    }
+                }
+                .onDisappear {
+                    animationTask?.cancel()
+                }
+        }
     }
 
     /// Starts the afterimage animation sequence
     private func startAfterimageSequence() {
-        // Step 1: Quickly fade out original content while showing ghost
-        withAnimation(.easeOut(duration: contentFadeDuration)) {
-            contentOpacity = 0.0
-            ghostOpacity = ghostInitialOpacity
-        }
+        animationTask?.cancel()
 
-        // Step 2: After content fade completes, animate ghost scaling up and fading out
-        DispatchQueue.main.asyncAfter(deadline: .now() + contentFadeDuration) {
+        animationTask = Task { @MainActor in
+            // Step 1: Quickly fade out original content while showing ghost
+            withAnimation(.easeOut(duration: contentFadeDuration)) {
+                contentOpacity = 0.0
+                ghostOpacity = ghostInitialOpacity
+            }
+
+            // Step 2: After content fade completes, animate ghost scaling up and fading out
+            guard !Task.isCancelled else { return }
+            try? await Task.sleep(for: .seconds(contentFadeDuration))
+
+            guard !Task.isCancelled else { return }
             withAnimation(.easeOut(duration: ghostFadeDuration)) {
                 ghostOpacity = 0.0
                 ghostScale = ghostTargetScale
@@ -119,7 +140,7 @@ extension View {
                 .foregroundColor(.dpSecondaryText)
 
             Text("What is the dull and persistent dissatisfaction you've learned to live with?")
-                .font(.custom("PlayfairDisplay-Regular", size: 24))
+                .font(.custom("Playfair Display", size: 24))
                 .foregroundColor(.dpPrimaryText)
         }
 
@@ -129,7 +150,7 @@ extension View {
                 .foregroundColor(.dpSecondaryText)
 
             Text("What is the dull and persistent dissatisfaction you've learned to live with?")
-                .font(.custom("PlayfairDisplay-Regular", size: 24))
+                .font(.custom("Playfair Display", size: 24))
                 .foregroundColor(.dpPrimaryText)
                 .opacity(0.15)
                 .scaleEffect(1.02)
@@ -158,7 +179,7 @@ private struct AfterimagePreview: View {
                 .foregroundColor(.dpSecondaryText)
 
             Text(questions[questionIndex])
-                .font(.custom("PlayfairDisplay-Regular", size: 24))
+                .font(.custom("Playfair Display", size: 24))
                 .foregroundColor(.dpPrimaryText)
                 .multilineTextAlignment(.leading)
                 .afterimage(isActive: isTransitioningOut)

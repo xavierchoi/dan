@@ -26,6 +26,12 @@ struct PressureTransition: ViewModifier {
     /// Tracks whether we're in the middle of an animation sequence
     @State private var isAnimating: Bool = false
 
+    /// Task for managing animation lifecycle
+    @State private var animationTask: Task<Void, Never>?
+
+    /// Accessibility: Reduce Motion setting
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     init(isActive: Bool, compressionScale: CGFloat = 0.98, duration: Double = 0.3) {
         self.isActive = isActive
         self.compressionScale = compressionScale
@@ -33,14 +39,22 @@ struct PressureTransition: ViewModifier {
     }
 
     func body(content: Content) -> some View {
-        content
-            .scaleEffect(scale)
-            .onChange(of: isActive) { oldValue, newValue in
-                if newValue && !oldValue {
-                    // Trigger pressure pulse
-                    startPressurePulse()
+        // Accessibility: Skip animations when Reduce Motion is enabled
+        if reduceMotion {
+            content
+        } else {
+            content
+                .scaleEffect(scale)
+                .onChange(of: isActive) { oldValue, newValue in
+                    if newValue && !oldValue {
+                        // Trigger pressure pulse
+                        startPressurePulse()
+                    }
                 }
-            }
+                .onDisappear {
+                    animationTask?.cancel()
+                }
+        }
     }
 
     // MARK: - Animation Sequence
@@ -48,19 +62,25 @@ struct PressureTransition: ViewModifier {
     /// Starts the pressure pulse animation sequence
     private func startPressurePulse() {
         guard !isAnimating else { return }
+
+        animationTask?.cancel()
         isAnimating = true
 
         // Calculate phase durations
         let compressionDuration = duration * 0.4
         let releaseDuration = duration * 0.6
 
-        // Phase 1: Compress with easeIn
-        withAnimation(.easeIn(duration: compressionDuration)) {
-            scale = compressionScale
-        }
+        animationTask = Task { @MainActor in
+            // Phase 1: Compress with easeIn
+            withAnimation(.easeIn(duration: compressionDuration)) {
+                scale = compressionScale
+            }
 
-        // Phase 2: Spring back to normal after compression completes
-        DispatchQueue.main.asyncAfter(deadline: .now() + compressionDuration) {
+            // Phase 2: Spring back to normal after compression completes
+            guard !Task.isCancelled else { return }
+            try? await Task.sleep(for: .seconds(compressionDuration))
+
+            guard !Task.isCancelled else { return }
             withAnimation(.spring(
                 response: releaseDuration,
                 dampingFraction: 0.6,
@@ -70,9 +90,11 @@ struct PressureTransition: ViewModifier {
             }
 
             // Reset animation flag after spring completes
-            DispatchQueue.main.asyncAfter(deadline: .now() + releaseDuration) {
-                isAnimating = false
-            }
+            guard !Task.isCancelled else { return }
+            try? await Task.sleep(for: .seconds(releaseDuration))
+
+            guard !Task.isCancelled else { return }
+            isAnimating = false
         }
     }
 }
@@ -119,6 +141,7 @@ extension View {
 /// Interactive preview helper for testing the pressure transition effect
 private struct PressureTransitionPreview: View {
     @State private var triggerPulse = false
+    @State private var previewTask: Task<Void, Never>?
 
     var body: some View {
         VStack(spacing: 40) {
@@ -129,7 +152,7 @@ private struct PressureTransitionPreview: View {
             Spacer()
 
             Text("What truth have you been avoiding?")
-                .font(.custom("PlayfairDisplay-Regular", size: 24))
+                .font(.custom("Playfair Display", size: 24))
                 .foregroundColor(.dpPrimaryText)
                 .multilineTextAlignment(.center)
                 .padding(32)
@@ -138,9 +161,14 @@ private struct PressureTransitionPreview: View {
             Spacer()
 
             Button(action: {
+                previewTask?.cancel()
                 triggerPulse = true
                 // Reset after animation completes
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                previewTask = Task { @MainActor in
+                    guard !Task.isCancelled else { return }
+                    try? await Task.sleep(for: .milliseconds(500))
+
+                    guard !Task.isCancelled else { return }
                     triggerPulse = false
                 }
             }) {
@@ -163,6 +191,7 @@ private struct PressureTransitionPreview: View {
 private struct PressureTransitionCardPreview: View {
     @State private var triggerPulse = false
     @State private var pulseCount = 0
+    @State private var previewTask: Task<Void, Never>?
 
     var body: some View {
         VStack(spacing: 40) {
@@ -179,7 +208,7 @@ private struct PressureTransitionCardPreview: View {
                     .foregroundColor(.dpSecondaryText)
 
                 Text("The card compresses slightly, then springs back—like taking a breath under pressure.")
-                    .font(.custom("PlayfairDisplay-Regular", size: 20))
+                    .font(.custom("Playfair Display", size: 20))
                     .foregroundColor(.dpPrimaryText)
                     .multilineTextAlignment(.center)
             }
@@ -200,9 +229,14 @@ private struct PressureTransitionCardPreview: View {
 
             HStack(spacing: 16) {
                 Button(action: {
+                    previewTask?.cancel()
                     triggerPulse = true
                     pulseCount += 1
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    previewTask = Task { @MainActor in
+                        guard !Task.isCancelled else { return }
+                        try? await Task.sleep(for: .milliseconds(500))
+
+                        guard !Task.isCancelled else { return }
                         triggerPulse = false
                     }
                 }) {
@@ -218,9 +252,14 @@ private struct PressureTransitionCardPreview: View {
                 }
 
                 Button(action: {
+                    previewTask?.cancel()
                     triggerPulse = true
                     pulseCount += 1
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    previewTask = Task { @MainActor in
+                        guard !Task.isCancelled else { return }
+                        try? await Task.sleep(for: .milliseconds(500))
+
+                        guard !Task.isCancelled else { return }
                         triggerPulse = false
                     }
                 }) {
