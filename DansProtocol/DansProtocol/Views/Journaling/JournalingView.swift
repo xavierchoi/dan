@@ -63,10 +63,19 @@ struct JournalingView: View {
     }
 
     var body: some View {
-        ZStack {
-            // MARK: - Background Layer with Effects (drawingGroup compatible)
-            // This layer contains all visual effects and can use Metal offscreen rendering
-            effectsLayer
+        GeometryReader { geometry in
+            let questionAreaHeight = min(geometry.size.height * 0.35, 280)
+            let buttonAreaHeight: CGFloat = 100
+            let inputAreaHeight = geometry.size.height - questionAreaHeight - buttonAreaHeight - geometry.safeAreaInsets.bottom
+
+            ZStack {
+                // MARK: - Background Layer with Effects (drawingGroup compatible)
+                // This layer contains all visual effects and can use Metal offscreen rendering
+                effectsLayer(
+                    questionAreaHeight: questionAreaHeight,
+                    inputAreaHeight: inputAreaHeight,
+                    buttonAreaHeight: buttonAreaHeight
+                )
                 .modifier(OptionalMicroTremor(
                     intensity: microTremorIntensity,
                     enabled: isMicroTremorEnabled
@@ -91,10 +100,16 @@ struct JournalingView: View {
                 ))
                 .drawingGroup()  // Metal offscreen rendering for effects layer only
 
-            // MARK: - TextField Layer (outside drawingGroup)
-            // UIKit-based TextField cannot be flattened by Metal rendering
-            textFieldLayer
+                // MARK: - TextField Layer (outside drawingGroup)
+                // UIKit-based TextField cannot be flattened by Metal rendering
+                textFieldLayer(
+                    questionAreaHeight: questionAreaHeight,
+                    inputAreaHeight: inputAreaHeight,
+                    buttonAreaHeight: buttonAreaHeight
+                )
+            }
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear {
             displayedQuestionText = viewModel.questionText
         }
@@ -104,27 +119,31 @@ struct JournalingView: View {
 
     /// Effects layer: background, question, buttons, progress indicator
     /// This layer is compatible with .drawingGroup() Metal rendering
-    private var effectsLayer: some View {
+    private func effectsLayer(
+        questionAreaHeight: CGFloat,
+        inputAreaHeight: CGFloat,
+        buttonAreaHeight: CGFloat
+    ) -> some View {
         ZStack {
             Color.dpBackground.ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 0) {
-                QuestionView(
-                    text: displayedQuestionText,
-                    language: viewModel.session.language,
-                    isExiting: isQuestionExiting
-                )
-                .id(displayedQuestionText)
+                // MARK: Question Area (fixed height, scrollable if needed)
+                ScrollView(.vertical, showsIndicators: false) {
+                    QuestionView(
+                        text: displayedQuestionText,
+                        language: viewModel.session.language,
+                        isExiting: isQuestionExiting
+                    )
+                    .id(displayedQuestionText)
+                }
+                .frame(height: questionAreaHeight)
 
-                Spacer()
-
-                // Placeholder space for TextField (actual TextField in separate layer)
+                // MARK: Input Area (placeholder - actual TextField in separate layer)
                 Color.clear
-                    .frame(height: 120)
-                    .padding(.horizontal, Spacing.screenPadding)
+                    .frame(height: inputAreaHeight)
 
-                Spacer()
-
+                // MARK: Button Area
                 HStack {
                     if viewModel.currentQuestionIndex > 0 {
                         TextButton(title: NavLabels.back(for: viewModel.session.language), action: handleGoBack)
@@ -138,8 +157,8 @@ struct JournalingView: View {
                         isEnabled: viewModel.canProceed
                     )
                 }
-                .padding(Spacing.screenPadding)
-                .padding(.bottom, Spacing.screenPadding)
+                .frame(height: buttonAreaHeight)
+                .padding(.horizontal, Spacing.screenPadding)
             }
 
             // Progress indicator overlay in top-right
@@ -151,10 +170,10 @@ struct JournalingView: View {
                         ? 0
                         : min(viewModel.currentQuestionIndex + 1, totalQuestions)
                     Text(String(format: "%02d / %02d", currentNumber, totalQuestions))
-                        .font(.system(size: 12, design: .monospaced))
+                        .font(.system(size: 14, weight: .medium, design: .monospaced))
                         .foregroundColor(.dpSecondaryText)
                         .padding(.trailing, Spacing.screenPadding)
-                        .padding(.top, Spacing.screenPadding)
+                        .padding(.top, Spacing.elementSpacing)
                 }
                 Spacer()
             }
@@ -163,24 +182,39 @@ struct JournalingView: View {
 
     /// TextField layer: positioned to match the placeholder in effects layer
     /// Kept outside drawingGroup to avoid Metal rendering incompatibility
-    private var textFieldLayer: some View {
+    private func textFieldLayer(
+        questionAreaHeight: CGFloat,
+        inputAreaHeight: CGFloat,
+        buttonAreaHeight: CGFloat
+    ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Match QuestionView height approximation
+            // Question area spacer
             Color.clear
-                .frame(height: 150)
+                .frame(height: questionAreaHeight)
 
-            Spacer()
+            // MARK: Input Area with visual separator
+            VStack(spacing: 0) {
+                // Top separator line
+                Rectangle()
+                    .fill(Color.dpSeparator.opacity(0.5))
+                    .frame(height: 1)
+                    .padding(.horizontal, Spacing.screenPadding)
 
-            MinimalTextField(
-                placeholder: viewModel.placeholder,
-                text: $viewModel.currentResponse
-            )
+                Spacer()
+                    .frame(height: Spacing.elementSpacing)
 
-            Spacer()
+                MinimalTextField(
+                    placeholder: viewModel.placeholder,
+                    text: $viewModel.currentResponse
+                )
 
-            // Match button area height
+                Spacer()
+            }
+            .frame(height: inputAreaHeight)
+
+            // Button area spacer
             Color.clear
-                .frame(height: 80)
+                .frame(height: buttonAreaHeight)
         }
     }
 
