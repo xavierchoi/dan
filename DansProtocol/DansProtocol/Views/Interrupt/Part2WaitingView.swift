@@ -76,6 +76,11 @@ struct Part2WaitingView: View {
                             Text(Part2Labels.tapNotificationInstruction(for: session.language))
                                 .font(.dpCaption)
                                 .foregroundColor(.dpSecondaryText)
+
+                            Text(Part2Labels.safeToClose(for: session.language))
+                                .font(.dpCaption)
+                                .foregroundColor(.dpSecondaryText)
+                                .padding(.top, Spacing.elementSpacing)
                         }
                     }
 

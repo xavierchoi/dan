@@ -65,8 +65,8 @@ enum OnboardingLabels {
 
     static func notificationExplanation(for language: String) -> String {
         language == "ko"
-            ? "Part 2는 하루 종일 무작위 인터럽트가 필요합니다. 예상치 못한 순간에 성찰을 유도하는 알림을 보내드립니다."
-            : "Part 2 requires random interruptions throughout the day. We'll send you notifications to prompt reflection at unexpected moments."
+            ? "기상 후 정해진 시간에 6번 알림을 보냅니다."
+            : "We'll send 6 check-ins at set times after you wake up."
     }
 
     static func enableNotificationsButton(for language: String) -> String {
@@ -117,6 +117,12 @@ enum Part2Labels {
 
     static func additionalReflection(for language: String) -> String {
         language == "ko" ? "추가 성찰 (선택)" : "Additional Reflection (Optional)"
+    }
+
+    static func safeToClose(for language: String) -> String {
+        language == "ko"
+            ? "이제 앱을 종료하고 일상으로 돌아가세요. 질문이 당신을 찾아갈 것입니다."
+            : "You may now close the app and return to your life. The questions will find you."
     }
 }
 
