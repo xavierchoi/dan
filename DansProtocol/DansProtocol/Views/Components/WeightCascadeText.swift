@@ -1,6 +1,5 @@
 import SwiftUI
 import UIKit
-import CoreText
 
 /// A view that displays text where each word sequentially "gains weight" with a staggered animation.
 ///
@@ -21,37 +20,50 @@ struct WeightCascadeText: View {
     let language: String
     let fontSize: CGFloat
     let breatheAfterCascade: Bool
+    let emphasisRanges: [Range<String.Index>]
 
-    /// Current animation progress (0 to 1 for the entire cascade)
-    @State private var animationProgress: Double = 0
-    @State private var isAnimating: Bool = false
+    /// Animation start time - all timing is calculated from this reference
+    @State private var startTime: Date?
+    @State private var isActive: Bool = false
 
-    /// Breathing animation phase (0 to 1 for one complete breathing cycle)
-    @State private var breathingPhase: Double = 0
-    @State private var isBreathing: Bool = false
-
-    /// Timer fires every 33ms (~30fps) for smooth animation
-    private static let timerInterval: Double = 0.033
-    private let timer = Timer.publish(every: Self.timerInterval, on: .main, in: .common).autoconnect()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // MARK: - Animation Constants
 
-    private static let startWeight: CGFloat = 300
-    private static let endWeight: CGFloat = 400
+    /// Animation update interval (~30fps) - TimelineView only updates when view is visible
+    private static let animationInterval: Double = 0.033
+
+    // NOTE: Playfair Display variable font weight range is 400-900
+    // Using numeric axis key 2003265652 (FourCC for 'wght') is REQUIRED for iOS
+    private static let startWeight: CGFloat = 400
+    private static let endWeight: CGFloat = 500
     private static let baseDelayPerWord: Double = 0.1
     private static let weightTransitionDuration: Double = 0.3
     private static let maxTotalDuration: Double = 3.0
 
-    // Breathing constants (same as BreathingText)
-    private static let breathingMinWeight: CGFloat = 350
-    private static let breathingMaxWeight: CGFloat = 450
-    private static let breathingDuration: Double = 8.0
+    // Breathing constants - DRAMATIC range for visible, felt effect
+    // Inspired by kinetic typography (Se7en title sequence)
+    // Weight oscillates between Regular (400) and Black (900) - full range!
+    private static let breathingMinWeight: CGFloat = 400
+    private static let breathingMaxWeight: CGFloat = 900
+    private static let breathingDuration: Double = 5.0  // 5 second breathing cycle
 
-    init(text: String, language: String, fontSize: CGFloat = 28, breatheAfterCascade: Bool = true) {
+    // Subtle scale pulse synchronized with weight breathing
+    private static let breathingMinScale: CGFloat = 1.0
+    private static let breathingMaxScale: CGFloat = 1.01
+
+    init(
+        text: String,
+        language: String,
+        fontSize: CGFloat = 28,
+        breatheAfterCascade: Bool = true,
+        emphasisRanges: [Range<String.Index>] = []
+    ) {
         self.text = text
         self.language = language
         self.fontSize = fontSize
         self.breatheAfterCascade = breatheAfterCascade
+        self.emphasisRanges = emphasisRanges
     }
 
     /// Split text into words preserving spacing information
@@ -83,25 +95,51 @@ struct WeightCascadeText: View {
         return Double(wordCount - 1) * delayPerWord + Self.weightTransitionDuration
     }
 
-    /// Font name based on language
-    private var fontName: String {
-        language == "ko" ? "NotoSerifKR-Regular" : "PlayfairDisplay-Regular"
+    /// Font family name based on language (must use family name for variable font weight axis)
+    private var fontFamilyName: String {
+        language == "ko" ? FontFamily.notoSerifKR : FontFamily.playfairDisplay
     }
 
-    /// Current breathing weight: oscillates between 350 and 450
-    /// Formula: 400 + sin(phase * 2 * pi) * 50
-    private var breathingWeight: CGFloat {
-        400 + sin(breathingPhase * 2 * .pi) * 50
-    }
+    /// Map words to ranges in the original text for emphasis lookup
+    private var wordRanges: [Range<String.Index>] {
+        var ranges: [Range<String.Index>] = []
+        var start = text.startIndex
 
-    /// Calculate the weight for a word at a given index based on current animation progress
-    private func weightForWord(at index: Int) -> CGFloat {
-        // If breathing mode is active, all words breathe together
-        if isBreathing {
-            return breathingWeight
+        for (index, word) in words.enumerated() {
+            let end = text.index(start, offsetBy: word.count)
+            ranges.append(start..<end)
+
+            if index < words.count - 1, end < text.endIndex {
+                start = text.index(after: end)
+            }
         }
 
-        let currentTime = animationProgress * totalDuration
+        return ranges
+    }
+
+    /// Calculate breathing weight for a given phase: oscillates between 400 and 900
+    /// Formula: 650 + sin(phase * 2 * pi) * 250
+    private func breathingWeight(for phase: Double) -> CGFloat {
+        let centerWeight = (Self.breathingMinWeight + Self.breathingMaxWeight) / 2  // 650
+        let amplitude = (Self.breathingMaxWeight - Self.breathingMinWeight) / 2      // 250
+        return centerWeight + sin(phase * 2 * .pi) * amplitude
+    }
+
+    /// Calculate breathing scale for a given phase: subtle pulse synchronized with weight
+    /// When weight is at max (900), scale is at max (1.01)
+    private func breathingScale(for phase: Double) -> CGFloat {
+        let normalizedSin = (sin(phase * 2 * .pi) + 1) / 2  // 0 to 1
+        return Self.breathingMinScale + normalizedSin * (Self.breathingMaxScale - Self.breathingMinScale)
+    }
+
+    /// Calculate the weight for a word at a given index based on cascade progress and breathing state
+    private func weightForWord(at index: Int, cascadeProgress: Double, breathingPhase: Double, isBreathing: Bool) -> CGFloat {
+        // If breathing mode is active, all words breathe together
+        if isBreathing {
+            return breathingWeight(for: breathingPhase)
+        }
+
+        let currentTime = cascadeProgress * totalDuration
         let wordStartTime = Double(index) * delayPerWord
         let wordEndTime = wordStartTime + Self.weightTransitionDuration
 
@@ -120,64 +158,74 @@ struct WeightCascadeText: View {
         }
     }
 
-    /// Create a font with the specified weight
-    private func font(weight: CGFloat) -> Font {
-        guard let uiFont = Self.createVariableFont(
-            name: fontName,
+    /// Create a font with the specified weight and optional italic style
+    private func font(weight: CGFloat, italic: Bool = false) -> Font {
+        guard let uiFont = VariableFontCache.shared.font(
+            family: fontFamilyName,
             size: fontSize,
-            weight: weight
+            weight: weight,
+            italic: italic
         ) else {
-            return Font.custom(fontName, size: fontSize)
+            // Fallback to static font
+            return Font.custom(fontFamilyName, size: fontSize)
         }
         return Font(uiFont)
     }
 
     var body: some View {
-        textContent
-            .onAppear {
-                // Reset and start animation when view appears
-                animationProgress = 0
-                breathingPhase = 0
-                isAnimating = true
-                isBreathing = false
-            }
-            .onDisappear {
-                isAnimating = false
-                isBreathing = false
-            }
-            .onReceive(timer) { _ in
-                // Handle breathing mode
-                if isBreathing {
-                    breathingPhase += Self.timerInterval / Self.breathingDuration
-                    if breathingPhase >= 1 {
-                        breathingPhase = 0
-                    }
-                    return
-                }
+        // TimelineView automatically pauses when view is not visible (battery efficient)
+        // No timer accumulation issues - all timing is calculated from startTime
+        TimelineView(.animation(minimumInterval: Self.animationInterval, paused: !isActive || reduceMotion)) { timeline in
+            let now = timeline.date
 
-                // Handle cascade animation
-                guard isAnimating else { return }
-                animationProgress += Self.timerInterval / totalDuration
-                if animationProgress >= 1 {
-                    animationProgress = 1
-                    isAnimating = false
+            // Calculate animation state from elapsed time
+            if let start = startTime {
+                let elapsed = now.timeIntervalSince(start)
 
-                    // Transition to breathing mode if enabled
-                    if breatheAfterCascade {
-                        isBreathing = true
-                    }
-                }
+                // Cascade progress (0 to 1, clamped)
+                let cascadeProgress = min(elapsed / totalDuration, 1.0)
+                let cascadeComplete = cascadeProgress >= 1.0
+
+                // Breathing phase (starts after cascade completes)
+                let breathingElapsed = max(0, elapsed - totalDuration)
+                let breathingPhase = breathingElapsed.truncatingRemainder(dividingBy: Self.breathingDuration) / Self.breathingDuration
+
+                // Determine if in breathing mode
+                let isBreathing = cascadeComplete && breatheAfterCascade
+
+                // Build text content with calculated animation values
+                textContent(cascadeProgress: cascadeProgress, breathingPhase: breathingPhase, isBreathing: isBreathing)
+                    // Apply subtle scale pulse during breathing mode
+                    .scaleEffect(isBreathing ? breathingScale(for: breathingPhase) : 1.0)
+            } else {
+                // Static content when reduceMotion is enabled
+                textContent(cascadeProgress: 1.0, breathingPhase: 0, isBreathing: false)
             }
+        }
+        .onAppear {
+            isActive = !reduceMotion
+            // Set start time only if animation should run
+            startTime = reduceMotion ? nil : Date()
+        }
+        .onDisappear {
+            isActive = false
+        }
     }
 
     /// Build the text content with per-word font weights
     @ViewBuilder
-    private var textContent: some View {
+    private func textContent(cascadeProgress: Double, breathingPhase: Double, isBreathing: Bool) -> some View {
+        let ranges = wordRanges
+
         // Use Text concatenation to apply different fonts per word
         words.enumerated().reduce(Text("")) { result, item in
             let (index, word) = item
-            let weight = weightForWord(at: index)
-            let wordText = Text(word).font(font(weight: weight))
+            let weight = weightForWord(at: index, cascadeProgress: cascadeProgress, breathingPhase: breathingPhase, isBreathing: isBreathing)
+            let wordRange = index < ranges.count ? ranges[index] : text.startIndex..<text.startIndex
+            let isEmphasized = emphasisRanges.contains { $0.overlaps(wordRange) }
+
+            // Apply italic font directly for emphasized words (synthesized oblique)
+            let wordText = Text(word).font(font(weight: weight, italic: isEmphasized))
 
             // Add space after each word except the last
             if index < words.count - 1 {
@@ -188,32 +236,6 @@ struct WeightCascadeText: View {
         }
     }
 
-    // MARK: - Variable Font Creation
-
-    /// Creates a UIFont with a specific weight value for variable fonts.
-    ///
-    /// Uses Core Text's variation attribute to interpolate the font weight.
-    ///
-    /// - Parameters:
-    ///   - name: The font name (e.g., "PlayfairDisplay-Regular")
-    ///   - size: The font size in points
-    ///   - weight: The weight value (300-400 for this animation)
-    /// - Returns: A UIFont configured with the specified weight, or nil if creation fails
-    private static func createVariableFont(name: String, size: CGFloat, weight: CGFloat) -> UIFont? {
-        let descriptor = UIFontDescriptor(fontAttributes: [
-            .name: name
-        ])
-
-        // Use Core Text variation attribute to set the weight axis
-        // "wght" is the standard axis tag for font weight
-        let variationDescriptor = descriptor.addingAttributes([
-            UIFontDescriptor.AttributeName(rawValue: kCTFontVariationAttribute as String): [
-                "wght": weight
-            ]
-        ])
-
-        return UIFont(descriptor: variationDescriptor, size: size)
-    }
 }
 
 // MARK: - Preview
