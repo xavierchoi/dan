@@ -13,7 +13,10 @@ struct OnboardingView: View {
 
             switch viewModel.currentStep {
             case .welcome:
-                WelcomeStepView(onContinue: viewModel.nextStep)
+                WelcomeStepView(
+                    language: viewModel.selectedLanguage,
+                    onContinue: viewModel.nextStep
+                )
 
             case .language:
                 LanguageSelectionView(
@@ -24,6 +27,7 @@ struct OnboardingView: View {
 
             case .date:
                 DateSelectionView(
+                    language: viewModel.selectedLanguage,
                     selectedDate: $viewModel.selectedDate,
                     onBack: viewModel.previousStep,
                     onContinue: viewModel.nextStep
@@ -31,6 +35,7 @@ struct OnboardingView: View {
 
             case .wakeTime:
                 WakeTimeSelectionView(
+                    language: viewModel.selectedLanguage,
                     wakeUpTime: $viewModel.wakeUpTime,
                     onBack: viewModel.previousStep,
                     onContinue: viewModel.nextStep
@@ -38,6 +43,7 @@ struct OnboardingView: View {
 
             case .notifications:
                 NotificationPermissionView(
+                    language: viewModel.selectedLanguage,
                     onBack: viewModel.previousStep,
                     onContinue: viewModel.nextStep
                 )
@@ -60,6 +66,7 @@ struct OnboardingView: View {
 // MARK: - WelcomeStepView
 
 struct WelcomeStepView: View {
+    let language: String
     var onContinue: () -> Void
 
     var body: some View {
@@ -68,11 +75,11 @@ struct WelcomeStepView: View {
 
             VStack(spacing: Spacing.elementSpacing) {
                 Text("Dan's Protocol")
-                    .font(.dpQuestionLarge)
+                    .font(.dpQuestionLarge(for: language))
                     .foregroundColor(.dpPrimaryText)
                     .multilineTextAlignment(.center)
 
-                Text("Fix your entire life in 1 day.")
+                Text(language == "ko" ? "하루 만에 인생 전체를 바꾸세요." : "Fix your entire life in 1 day.")
                     .font(.dpBody)
                     .foregroundColor(.dpSecondaryText)
                     .multilineTextAlignment(.center)
@@ -80,8 +87,11 @@ struct WelcomeStepView: View {
 
             Spacer()
 
-            TextButton(title: "Begin \u{2192}", action: onContinue)
-                .padding(.bottom, Spacing.sectionSpacing)
+            TextButton(
+                title: language == "ko" ? "시작하기 →" : "Begin →",
+                action: onContinue
+            )
+            .padding(.bottom, Spacing.sectionSpacing)
         }
         .padding(.horizontal, Spacing.screenPadding)
     }
@@ -93,6 +103,6 @@ struct WelcomeStepView: View {
 }
 
 #Preview("Welcome Step") {
-    WelcomeStepView(onContinue: {})
+    WelcomeStepView(language: "en", onContinue: {})
         .background(Color.dpBackground)
 }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WakeTimeSelectionView: View {
+    let language: String
     @Binding var wakeUpTime: Date
     var onBack: () -> Void
     var onContinue: () -> Void
@@ -10,8 +11,8 @@ struct WakeTimeSelectionView: View {
             Spacer()
 
             VStack(spacing: Spacing.sectionSpacing) {
-                Text("What time will you wake up?")
-                    .font(.dpQuestionLarge)
+                Text(language == "ko" ? "몇 시에 일어나시나요?" : "What time will you wake up?")
+                    .font(.dpQuestionLarge(for: language))
                     .foregroundColor(.dpPrimaryText)
                     .multilineTextAlignment(.center)
 
@@ -28,9 +29,9 @@ struct WakeTimeSelectionView: View {
             Spacer()
 
             HStack {
-                TextButton(title: "\u{2190} Back", action: onBack)
+                TextButton(title: language == "ko" ? "← 이전" : "← Back", action: onBack)
                 Spacer()
-                TextButton(title: "Continue \u{2192}", action: onContinue)
+                TextButton(title: language == "ko" ? "계속 →" : "Continue →", action: onContinue)
             }
             .padding(.bottom, Spacing.sectionSpacing)
         }
@@ -41,6 +42,7 @@ struct WakeTimeSelectionView: View {
 
 #Preview {
     WakeTimeSelectionView(
+        language: "en",
         wakeUpTime: .constant(
             Calendar.current.date(from: DateComponents(hour: 7, minute: 0)) ?? Date()
         ),

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DateSelectionView: View {
+    let language: String
     @Binding var selectedDate: Date
     var onBack: () -> Void
     var onContinue: () -> Void
@@ -16,8 +17,8 @@ struct DateSelectionView: View {
             Spacer()
 
             VStack(spacing: Spacing.sectionSpacing) {
-                Text("When is your Protocol Day?")
-                    .font(.dpQuestionLarge)
+                Text(language == "ko" ? "프로토콜 데이는 언제인가요?" : "When is your Protocol Day?")
+                    .font(.dpQuestionLarge(for: language))
                     .foregroundColor(.dpPrimaryText)
                     .multilineTextAlignment(.center)
 
@@ -35,9 +36,9 @@ struct DateSelectionView: View {
             Spacer()
 
             HStack {
-                TextButton(title: "\u{2190} Back", action: onBack)
+                TextButton(title: language == "ko" ? "← 이전" : "← Back", action: onBack)
                 Spacer()
-                TextButton(title: "Continue \u{2192}", action: onContinue)
+                TextButton(title: language == "ko" ? "계속 →" : "Continue →", action: onContinue)
             }
             .padding(.bottom, Spacing.sectionSpacing)
         }
@@ -48,6 +49,7 @@ struct DateSelectionView: View {
 
 #Preview {
     DateSelectionView(
+        language: "en",
         selectedDate: .constant(Date()),
         onBack: {},
         onContinue: {}

@@ -20,18 +20,26 @@ targets:
       - path: DansProtocol
         excludes:
           - "**/*.xcassets"
-          - "**/*.json"
           - "**/Fonts/**"
           - "Info.plist"
+          - "Resources/Questions.json"
+      - path: DansProtocol/Resources/Questions.json
+        type: file
+        buildPhase: resources
+      - path: DansProtocol/Resources/Fonts/PlayfairDisplay-VariableFont_wght.ttf
+        type: file
+        buildPhase: resources
+      - path: DansProtocol/Resources/Fonts/NotoSerifKR-VariableFont_wght.ttf
+        type: file
+        buildPhase: resources
     resources:
       - path: DansProtocol/Resources/Assets.xcassets
-      - path: DansProtocol/Resources/Questions.json
-      - path: DansProtocol/Resources/Fonts
     settings:
       base:
         INFOPLIST_FILE: DansProtocol/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.dansprotocol.DansProtocol
         PRODUCT_NAME: "Dan's Protocol"
+        PRODUCT_MODULE_NAME: DansProtocol
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -59,7 +67,7 @@ targets:
     settings:
       base:
         BUNDLE_LOADER: "$(TEST_HOST)"
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/DansProtocol.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DansProtocol"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Dan's Protocol.app/Dan's Protocol"
         PRODUCT_BUNDLE_IDENTIFIER: com.dansprotocol.DansProtocolTests
         GENERATE_INFOPLIST_FILE: YES
 

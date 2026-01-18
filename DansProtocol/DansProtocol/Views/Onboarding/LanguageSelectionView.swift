@@ -10,8 +10,8 @@ struct LanguageSelectionView: View {
             Spacer()
 
             VStack(spacing: Spacing.sectionSpacing) {
-                Text("Choose your language")
-                    .font(.dpQuestionLarge)
+                Text(selectedLanguage == "ko" ? "언어를 선택하세요" : "Choose your language")
+                    .font(.dpQuestionLarge(for: selectedLanguage))
                     .foregroundColor(.dpPrimaryText)
                     .multilineTextAlignment(.center)
 
@@ -24,7 +24,7 @@ struct LanguageSelectionView: View {
                     )
 
                     LanguageOption(
-                        title: "\u{D55C}\u{AD6D}\u{C5B4}",
+                        title: "한국어",
                         code: "ko",
                         isSelected: selectedLanguage == "ko",
                         onSelect: { selectedLanguage = "ko" }
@@ -35,9 +35,9 @@ struct LanguageSelectionView: View {
             Spacer()
 
             HStack {
-                TextButton(title: "\u{2190} Back", action: onBack)
+                TextButton(title: selectedLanguage == "ko" ? "← 이전" : "← Back", action: onBack)
                 Spacer()
-                TextButton(title: "Continue \u{2192}", action: onContinue)
+                TextButton(title: selectedLanguage == "ko" ? "계속 →" : "Continue →", action: onContinue)
             }
             .padding(.bottom, Spacing.sectionSpacing)
         }

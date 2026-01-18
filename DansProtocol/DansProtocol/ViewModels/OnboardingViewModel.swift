@@ -3,7 +3,10 @@ import SwiftData
 
 @Observable
 class OnboardingViewModel {
-    var selectedLanguage: String = "en"
+    var selectedLanguage: String = {
+        let preferredLanguage = Locale.preferredLanguages.first ?? "en"
+        return preferredLanguage.hasPrefix("ko") ? "ko" : "en"
+    }()
     var selectedDate: Date = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
     var wakeUpTime: Date = Calendar.current.date(from: DateComponents(hour: 7, minute: 0)) ?? Date()
     var currentStep: OnboardingStep = .welcome

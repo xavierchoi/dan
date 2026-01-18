@@ -114,7 +114,8 @@ struct Part2WaitingView: View {
 
                         TextButton(
                             title: Part2Labels.startPart3(for: session.language),
-                            action: onStartPart3
+                            action: onStartPart3,
+                            prominence: allAnswered ? .primary : .secondary
                         )
                     }
                 }
