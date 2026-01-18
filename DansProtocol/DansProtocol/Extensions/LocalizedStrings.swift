@@ -46,27 +46,27 @@ enum OnboardingLabels {
     }
 
     static func whatTimeWakeUp(for language: String) -> String {
-        language == "ko" ? "몇 시에 일어나실 건가요?" : "What time will you wake up?"
+        language == "ko" ? "몇 시에 일어나시나요?" : "What time will you wake up?"
     }
 
-    static func enableNotifications(for language: String) -> String {
-        language == "ko" ? "알림 활성화" : "Enable notifications"
+    static func enableNotificationsTitle(for language: String) -> String {
+        language == "ko" ? "알림을 활성화하세요" : "Enable notifications"
     }
 
     static func notificationsDisabled(for language: String) -> String {
-        language == "ko" ? "알림이 비활성화되었습니다" : "Notifications are disabled"
+        language == "ko" ? "알림이 비활성화되어 있습니다" : "Notifications are disabled"
     }
 
     static func enableLaterInSettings(for language: String) -> String {
         language == "ko"
-            ? "설정에서 나중에 활성화하여 Part 2 인터럽트를 받을 수 있습니다."
+            ? "Part 2 중단 알림을 받으려면 나중에 설정에서 활성화할 수 있습니다."
             : "You can enable them later in Settings to receive Part 2 interruptions."
     }
 
     static func notificationExplanation(for language: String) -> String {
         language == "ko"
-            ? "기상 후 정해진 시간에 6번 알림을 보냅니다."
-            : "We'll send 6 check-ins at set times after you wake up."
+            ? "기상 후 고정 스케줄로 6번 알림이 옵니다."
+            : "You'll get 6 check-ins on a fixed schedule after you wake."
     }
 
     static func enableNotificationsButton(for language: String) -> String {
@@ -74,11 +74,49 @@ enum OnboardingLabels {
     }
 
     static func continueAnyway(for language: String) -> String {
-        language == "ko" ? "그래도 계속 →" : "Continue anyway →"
+        language == "ko" ? "그냥 계속 →" : "Continue anyway →"
     }
 
     static func skipButton(for language: String) -> String {
         language == "ko" ? "건너뛰기 →" : "Skip →"
+    }
+
+    // MARK: - Ready Step
+
+    static func youAreReady(for language: String) -> String {
+        language == "ko" ? "준비되었습니다" : "You're ready"
+    }
+
+    static func part1Title(for language: String) -> String {
+        language == "ko" ? "Part 1: 성찰" : "Part 1: Reflection"
+    }
+
+    static func part1Description(for language: String) -> String {
+        language == "ko"
+            ? "아침에 15개의 질문에 답하며 삶을 돌아봅니다"
+            : "Answer 15 questions in the morning to reflect on your life"
+    }
+
+    static func part2Title(for language: String) -> String {
+        language == "ko" ? "Part 2: 중단" : "Part 2: Interruption"
+    }
+
+    static func part3Title(for language: String) -> String {
+        language == "ko" ? "Part 3: 통합" : "Part 3: Integration"
+    }
+
+    static func part3Description(for language: String) -> String {
+        language == "ko"
+            ? "밤에 하루를 정리하고 삶의 게임 요소를 정의합니다"
+            : "Synthesize your day in the evening and define your Life Game components"
+    }
+
+    static func antiVisionPrimer(for language: String) -> String {
+        language == "ko" ? "당신이 거부하는 미래" : "The future you refuse to live."
+    }
+
+    static func startPart1(for language: String) -> String {
+        language == "ko" ? "Part 1 시작 →" : "Start Part 1 →"
     }
 }
 
@@ -159,6 +197,26 @@ enum HistoryLabels {
 enum NotificationLabels {
     static func timeToReflect(for language: String) -> String {
         language == "ko" ? "성찰 시간" : "Time to reflect"
+    }
+
+    static func reminderTitle(for language: String) -> String {
+        language == "ko" ? "다시 한번 생각해보세요" : "A gentle reminder"
+    }
+}
+
+// MARK: - Error Labels
+
+enum ErrorLabels {
+    static func questionsLoadFailed(for language: String) -> String {
+        language == "ko"
+            ? "데이터를 불러올 수 없습니다"
+            : "Unable to load data"
+    }
+
+    static func pleaseReinstall(for language: String) -> String {
+        language == "ko"
+            ? "앱을 다시 설치해 주세요.\n문제가 계속되면 지원팀에 문의하세요."
+            : "Please reinstall the app.\nIf the problem persists, contact support."
     }
 }
 

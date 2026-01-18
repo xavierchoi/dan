@@ -158,28 +158,33 @@ struct ContentView: View {
 // MARK: - Error View
 
 extension ContentView {
+    /// Returns the current language from UserDefaults or system preference
+    private var currentLanguage: String {
+        if let stored = UserDefaults.standard.string(forKey: OnboardingViewModel.userLanguageKey) {
+            return stored
+        }
+        let preferred = Locale.preferredLanguages.first ?? "en"
+        return preferred.hasPrefix("ko") ? "ko" : "en"
+    }
+
     /// Error view displayed when Questions.json fails to load
     @ViewBuilder
     func questionsLoadErrorView(error: String) -> some View {
-        VStack(spacing: 24) {
+        VStack(spacing: Spacing.sectionSpacing) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 48))
                 .foregroundColor(.orange)
 
-            Text("Critical Error")
+            Text(ErrorLabels.questionsLoadFailed(for: currentLanguage))
                 .font(.system(size: 24, weight: .semibold))
                 .foregroundColor(.dpPrimaryText)
 
-            Text(error)
-                .font(.system(size: 14))
+            Text(ErrorLabels.pleaseReinstall(for: currentLanguage))
+                .font(.dpBody)
                 .foregroundColor(.dpSecondaryText)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
-
-            Text("Please reinstall the app or contact support.")
-                .font(.system(size: 12))
-                .foregroundColor(.dpSecondaryText.opacity(0.7))
         }
+        .padding(Spacing.screenPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
