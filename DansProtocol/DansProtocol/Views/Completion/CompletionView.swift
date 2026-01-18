@@ -7,42 +7,57 @@ struct CompletionView: View {
     @State private var showingShareSheet = false
     @State private var shareImage: UIImage?
 
+    // MARK: - Animation State
+
+    /// Edge glow progress - starts full, dims to 0.3 for catharsis effect
+    @State private var edgeGlowProgress: Double = 1.0
+
+    /// Controls the breathing animation on the title
+    @State private var isBreathing = false
+
+    /// Opacity values for cascading component fade-in (6 components)
+    @State private var componentOpacities: [Double] = Array(repeating: 0.0, count: 6)
+
+    // MARK: - Computed Properties
+
+    /// The 6 Life Game component data for display
+    private var componentData: [(title: String, value: String)] {
+        guard let components = session.components else { return [] }
+        let isKorean = session.language == "ko"
+        return [
+            (isKorean ? "안티비전" : "Anti-Vision", components.antiVision),
+            (isKorean ? "비전" : "Vision", components.vision),
+            (isKorean ? "1년 목표" : "1-Year Goal", components.oneYearGoal),
+            (isKorean ? "1달 프로젝트" : "1-Month Project", components.oneMonthProject),
+            (isKorean ? "일일 레버" : "Daily Levers", components.dailyLevers.joined(separator: "\n")),
+            (isKorean ? "제약" : "Constraints", components.constraints)
+        ]
+    }
+
     var body: some View {
         ZStack {
             Color.dpBackground.ignoresSafeArea()
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.sectionSpacing) {
+                    // MARK: - Title with breathing animation
                     Text(session.language == "ko" ? "당신의 라이프 게임" : "Your Life Game")
-                        .font(.dpQuestionLarge)
+                        .font(.dpQuestionLarge(for: session.language))
                         .foregroundColor(.dpPrimaryText)
+                        .scaleEffect(isBreathing ? 1.02 : 1.0)
+                        .animation(
+                            .easeInOut(duration: 3.0).repeatForever(autoreverses: true),
+                            value: isBreathing
+                        )
                         .padding(.top, Spacing.questionTopPadding)
 
-                    if let components = session.components {
+                    // MARK: - 6 Components with cascading fade-in
+                    ForEach(Array(componentData.enumerated()), id: \.offset) { index, component in
                         ComponentRow(
-                            title: session.language == "ko" ? "안티비전" : "Anti-Vision",
-                            value: components.antiVision
+                            title: component.title,
+                            value: component.value
                         )
-                        ComponentRow(
-                            title: session.language == "ko" ? "비전" : "Vision",
-                            value: components.vision
-                        )
-                        ComponentRow(
-                            title: session.language == "ko" ? "1년 목표" : "1-Year Goal",
-                            value: components.oneYearGoal
-                        )
-                        ComponentRow(
-                            title: session.language == "ko" ? "1달 프로젝트" : "1-Month Project",
-                            value: components.oneMonthProject
-                        )
-                        ComponentRow(
-                            title: session.language == "ko" ? "일일 레버" : "Daily Levers",
-                            value: components.dailyLevers.joined(separator: "\n")
-                        )
-                        ComponentRow(
-                            title: session.language == "ko" ? "제약" : "Constraints",
-                            value: components.constraints
-                        )
+                        .opacity(componentOpacities[index])
                     }
 
                     Spacer(minLength: Spacing.sectionSpacing)
@@ -62,6 +77,26 @@ struct CompletionView: View {
                     }
                 }
                 .padding(Spacing.screenPadding)
+            }
+        }
+        .edgeGlow(progress: edgeGlowProgress, position: .frame, pulsing: false)
+        .onAppear {
+            // Haptic feedback - heartbeat pattern for completion
+            HapticEngine.shared.completionHeartbeat()
+
+            // Start breathing animation on title
+            isBreathing = true
+
+            // Slowly dim the edge glow for catharsis effect (release, calm after storm)
+            withAnimation(.easeOut(duration: 4.0)) {
+                edgeGlowProgress = 0.3
+            }
+
+            // Cascade fade-in for the 6 components
+            for index in 0..<componentOpacities.count {
+                withAnimation(.easeIn(duration: 0.5).delay(Double(index) * 0.3 + 1.0)) {
+                    componentOpacities[index] = 1.0
+                }
             }
         }
         .sheet(isPresented: $showingShareSheet) {
