@@ -37,6 +37,9 @@ struct ReadyStepView: View {
                             : "Synthesize your day in the evening and define your Life Game components"
                     )
                 }
+
+                // Anti-Vision concept primer
+                AntiVisionPrimer(language: language)
             }
 
             Spacer()
@@ -47,12 +50,39 @@ struct ReadyStepView: View {
                     action: onStart
                 )
 
-                TextButton(title: "\u{2190} Back", action: onBack)
+                TextButton(
+                    title: language == "ko" ? "\u{2190} 뒤로" : "\u{2190} Back",
+                    action: onBack
+                )
             }
             .padding(.bottom, Spacing.sectionSpacing)
         }
         .padding(.horizontal, Spacing.screenPadding)
         .background(Color.dpBackground)
+    }
+}
+
+// MARK: - AntiVisionPrimer
+
+/// Subtle introduction to the Anti-Vision concept before Part 3
+struct AntiVisionPrimer: View {
+    let language: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.lineSpacing) {
+            Text(language == "ko" ? "안티-비전" : "Anti-Vision")
+                .font(.dpCaption)
+                .foregroundColor(.dpSecondaryText)
+                .italic()
+
+            Text(language == "ko"
+                ? "당신이 거부하는 미래"
+                : "The future you refuse to live.")
+                .font(.dpCaption)
+                .foregroundColor(.dpSecondaryText.opacity(0.7))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, Spacing.elementSpacing)
     }
 }
 
