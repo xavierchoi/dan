@@ -3,6 +3,9 @@ import SwiftUI
 struct HistoryView: View {
     let sessions: [ProtocolSession]
     var onStartNew: () -> Void
+    var isModal: Bool = false
+
+    @Environment(\.dismiss) private var dismiss
 
     private var completedSessions: [ProtocolSession] {
         sessions
@@ -68,12 +71,26 @@ struct HistoryView: View {
 
                         Spacer(minLength: Spacing.sectionSpacing)
 
-                        TextButton(title: HistoryLabels.startNewProtocol(for: language), action: onStartNew)
+                        if !isModal {
+                            TextButton(title: HistoryLabels.startNewProtocol(for: language), action: onStartNew)
+                        }
                     }
                     .padding(Spacing.screenPadding)
                 }
             }
-            .navigationBarHidden(true)
+            .navigationBarHidden(!isModal)
+            .toolbar {
+                if isModal {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .foregroundColor(.dpSecondaryText)
+                        }
+                    }
+                }
+            }
         }
     }
 }

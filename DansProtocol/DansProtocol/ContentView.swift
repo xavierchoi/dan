@@ -2,9 +2,21 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    // MARK: - FetchDescriptor for Query Optimization
+    /// Fetch only recent 10 sessions sorted by startDate descending
+    /// This reduces memory footprint and improves initial load time
+    static var recentSessionsDescriptor: FetchDescriptor<ProtocolSession> {
+        var descriptor = FetchDescriptor<ProtocolSession>(
+            sortBy: [SortDescriptor(\.startDate, order: .reverse)]
+        )
+        descriptor.fetchLimit = 10
+        return descriptor
+    }
+
     @Environment(\.modelContext) private var modelContext
-    @Query private var sessions: [ProtocolSession]
+    @Query(ContentView.recentSessionsDescriptor) private var sessions: [ProtocolSession]
     @State private var viewModel = AppViewModel()
+    @State private var showingHistorySheet = false
 
     var body: some View {
         ZStack {
@@ -22,6 +34,7 @@ struct ContentView: View {
                     viewModel.appState = .part1
                     // Schedule notifications
                     NotificationService.shared.scheduleInterrupts(
+                        sessionId: session.id,
                         wakeUpTime: session.wakeUpTime,
                         language: session.language
                     )
@@ -40,6 +53,7 @@ struct ContentView: View {
                     JournalingView(session: session, part: 1) {
                         session.status = .part2
                         viewModel.appState = .part2Waiting
+                        viewModel.presentPendingIfPossible()
                     }
                 }
 
@@ -79,6 +93,18 @@ struct ContentView: View {
                     viewModel.startNewSession()
                 }
             }
+
+            // History button overlay (only in part2Waiting or completed states)
+            if viewModel.appState == .part2Waiting || viewModel.appState == .completed {
+                Button {
+                    showingHistorySheet = true
+                } label: {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .foregroundColor(.dpSecondaryText)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .padding()
+            }
         }
         .onAppear {
             viewModel.determineState(sessions: sessions)
@@ -96,16 +122,28 @@ struct ContentView: View {
                 )
             }
         }
+        .sheet(isPresented: $showingHistorySheet) {
+            HistoryView(sessions: sessions, onStartNew: {}, isModal: true)
+        }
         .onReceive(NotificationCenter.default.publisher(for: .didTapNotification)) { notification in
             if let questionId = notification.userInfo?["questionId"] as? String {
-                viewModel.handleNotificationTap(questionId: questionId)
+                let sessionIdString = notification.userInfo?["sessionId"] as? String
+                let sessionId = sessionIdString.flatMap(UUID.init(uuidString:))
+                viewModel.handleNotificationTap(questionId: questionId, sessionId: sessionId)
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .didAnswerInterrupt)) { notification in
+            guard let questionId = notification.userInfo?["questionId"] as? String,
+                  let sessionIdString = notification.userInfo?["sessionId"] as? String,
+                  let sessionId = UUID(uuidString: sessionIdString) else { return }
+            viewModel.handleInterruptAnswered(questionId: questionId, sessionId: sessionId)
         }
     }
 }
 
 extension Notification.Name {
     static let didTapNotification = Notification.Name("didTapNotification")
+    static let didAnswerInterrupt = Notification.Name("didAnswerInterrupt")
 }
 
 #Preview {

@@ -145,6 +145,10 @@ enum HistoryLabels {
         language == "ko" ? "새 프로토콜 시작" : "Start New Protocol"
     }
 
+    static func close(for language: String) -> String {
+        language == "ko" ? "닫기" : "Close"
+    }
+
     static func thenVsNow(for language: String) -> String {
         language == "ko" ? "과거 vs 현재" : "Then vs Now"
     }
