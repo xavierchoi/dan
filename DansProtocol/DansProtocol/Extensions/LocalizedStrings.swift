@@ -37,6 +37,14 @@ enum OnboardingLabels {
         language == "ko" ? "하루 만에 인생 전체를 정비하세요." : "Fix your entire life in 1 day."
     }
 
+    static func credit(for language: String) -> String {
+        language == "ko" ? "Dan Koe의 아티클 기반" : "Based on article by Dan Koe"
+    }
+
+    static func viewHistory(for language: String) -> String {
+        language == "ko" ? "지난 기록 보기" : "View History"
+    }
+
     static func chooseLanguage(for language: String) -> String {
         language == "ko" ? "언어를 선택하세요" : "Choose your language"
     }

@@ -3,7 +3,9 @@ import SwiftData
 
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
+    @Query private var sessions: [ProtocolSession]
     @State private var viewModel = OnboardingViewModel()
+    @State private var showingHistorySheet = false
     var onComplete: (ProtocolSession) -> Void
 
     /// Total number of onboarding steps for progress indicator
@@ -21,7 +23,9 @@ struct OnboardingView: View {
                     case .welcome:
                         WelcomeStepView(
                             language: viewModel.selectedLanguage,
-                            onContinue: { advanceStep() }
+                            hasHistory: !sessions.isEmpty,
+                            onContinue: { advanceStep() },
+                            onViewHistory: { showingHistorySheet = true }
                         )
 
                     case .language:
@@ -77,6 +81,9 @@ struct OnboardingView: View {
             }
         }
         .animation(.easeInOut(duration: 0.8), value: viewModel.currentStep)
+        .sheet(isPresented: $showingHistorySheet) {
+            HistoryView(sessions: sessions, onStartNew: {}, isModal: true)
+        }
     }
 
     /// Advance to next step with haptic feedback
@@ -119,10 +126,31 @@ struct StepIndicatorView: View {
 
 struct WelcomeStepView: View {
     let language: String
+    let hasHistory: Bool
     var onContinue: () -> Void
+    var onViewHistory: () -> Void
+
+    /// Dan Koe's original article URL
+    private let danKoeArticleURL = URL(string: "https://x.com/thedankoe/status/2010751592346030461")!
 
     var body: some View {
         VStack(spacing: 0) {
+            // History button in top right
+            HStack {
+                Spacer()
+                if hasHistory {
+                    Button(action: onViewHistory) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "clock.arrow.circlepath")
+                            Text(OnboardingLabels.viewHistory(for: language))
+                                .font(.dpCaption)
+                        }
+                        .foregroundColor(.dpSecondaryText)
+                    }
+                }
+            }
+            .padding(.top, Spacing.elementSpacing)
+
             Spacer()
 
             VStack(spacing: Spacing.sectionSpacing) {
@@ -139,10 +167,20 @@ struct WelcomeStepView: View {
 
             Spacer()
 
-            TextButton(
-                title: NavLabels.begin(for: language),
-                action: onContinue
-            )
+            VStack(spacing: Spacing.elementSpacing) {
+                TextButton(
+                    title: NavLabels.begin(for: language),
+                    action: onContinue
+                )
+
+                // Dan Koe credit link
+                Link(destination: danKoeArticleURL) {
+                    Text(OnboardingLabels.credit(for: language))
+                        .font(.dpCaption)
+                        .foregroundColor(.dpSecondaryText)
+                        .underline()
+                }
+            }
             .padding(.bottom, Spacing.sectionSpacing * 1.5)
         }
         .padding(.horizontal, Spacing.screenPadding)
@@ -154,7 +192,22 @@ struct WelcomeStepView: View {
         .modelContainer(for: ProtocolSession.self, inMemory: true)
 }
 
-#Preview("Welcome Step") {
-    WelcomeStepView(language: "en", onContinue: {})
-        .background(Color.dpBackground)
+#Preview("Welcome Step - No History") {
+    WelcomeStepView(
+        language: "en",
+        hasHistory: false,
+        onContinue: {},
+        onViewHistory: {}
+    )
+    .background(Color.dpBackground)
+}
+
+#Preview("Welcome Step - With History") {
+    WelcomeStepView(
+        language: "ko",
+        hasHistory: true,
+        onContinue: {},
+        onViewHistory: {}
+    )
+    .background(Color.dpBackground)
 }
