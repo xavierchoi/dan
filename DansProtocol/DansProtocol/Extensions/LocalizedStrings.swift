@@ -278,6 +278,12 @@ enum ComponentLabels {
     static func now(for language: String) -> String {
         language == "ko" ? "현재" : "NOW"
     }
+
+    static func dailyLeversHint(for language: String) -> String {
+        language == "ko"
+            ? "여러 항목은 줄바꿈 또는 쉼표로 구분"
+            : "Separate multiple items with line breaks or commas"
+    }
 }
 
 // MARK: - Alert Labels

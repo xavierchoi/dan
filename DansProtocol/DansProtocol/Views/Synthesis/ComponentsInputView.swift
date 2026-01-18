@@ -24,6 +24,15 @@ struct ComponentsInputView: View {
                         .padding(.horizontal, Spacing.screenPadding)
                 }
 
+                // Show Daily Levers input hint
+                if viewModel.isDailyLeversQuestion {
+                    Text(ComponentLabels.dailyLeversHint(for: viewModel.session.language))
+                        .font(.dpCaption)
+                        .foregroundColor(.dpSecondaryText)
+                        .padding(.horizontal, Spacing.screenPadding)
+                        .padding(.top, Spacing.elementSpacing)
+                }
+
                 Spacer()
 
                 MinimalTextField(
@@ -90,6 +99,11 @@ class ComponentsInputViewModel {
     var isAntiVisionQuestion: Bool {
         guard currentIndex < prompts.count else { return false }
         return prompts[currentIndex].id == "part3_component_antivision"
+    }
+
+    var isDailyLeversQuestion: Bool {
+        guard currentIndex < prompts.count else { return false }
+        return prompts[currentIndex].id == "part3_component_dailylevers"
     }
 
     var isDone: Bool {
