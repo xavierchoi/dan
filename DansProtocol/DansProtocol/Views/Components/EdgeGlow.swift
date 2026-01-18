@@ -6,7 +6,11 @@ import SwiftUI
 /// creates a barely-perceptible glow at the screen edge that users "feel" rather than
 /// consciously track. This aligns with Dan's Protocol's typographic tension design system.
 ///
-/// Two modes are available:
+/// Three position modes are available:
+/// - **Top/Leading**: Single edge glow (original behavior)
+/// - **Frame**: All 4 edges glow simultaneously, creating a "walls closing in" effect
+///
+/// Two visualization modes are available:
 /// - **Opacity mode**: Full-width glow that brightens as progress increases (more subliminal)
 /// - **Length mode**: Glow line that extends as progress increases (more perceptible)
 ///
@@ -17,6 +21,9 @@ import SwiftUI
 ///
 /// // Length-based progress at leading edge
 /// EdgeGlow(progress: 0.7, position: .leading, mode: .length)
+///
+/// // Frame mode with pulsing for Pressure Chamber effect
+/// EdgeGlow(progress: 0.9, position: .frame, pulsing: true)
 /// ```
 struct EdgeGlow: View {
 
@@ -25,10 +32,19 @@ struct EdgeGlow: View {
     /// The edge where the glow appears
     enum Position {
         case top
+        case bottom
         case leading
+        case trailing
+        /// All 4 edges simultaneously - creates a "walls closing in" effect
+        case frame
 
         var isHorizontal: Bool {
-            self == .top
+            self == .top || self == .bottom
+        }
+
+        /// Returns all individual edge positions for frame mode
+        static var frameEdges: [Position] {
+            [.top, .bottom, .leading, .trailing]
         }
     }
 
@@ -53,6 +69,20 @@ struct EdgeGlow: View {
     /// Blur radius for the glow effect (2-4px as per spec)
     private static let blurRadius: CGFloat = 3
 
+    // Frame mode specific constants
+    /// Minimum opacity for frame mode at 0% progress (barely visible)
+    private static let frameMinOpacity: Double = 0.05
+    /// Maximum opacity for frame mode at 100% progress
+    private static let frameMaxOpacity: Double = 0.5
+    /// Threshold at which pulsing begins
+    private static let pulseThreshold: Double = 0.8
+    /// Base pulse frequency (cycles per second) at threshold
+    private static let basePulseFrequency: Double = 0.5
+    /// Maximum pulse frequency at 100% progress
+    private static let maxPulseFrequency: Double = 2.0
+    /// Pulse amplitude (opacity variation)
+    private static let pulseAmplitude: Double = 0.15
+
     // MARK: - Properties
 
     /// Progress value from 0.0 to 1.0
@@ -61,11 +91,23 @@ struct EdgeGlow: View {
     let position: Position
     /// How the progress is visualized
     let mode: Mode
+    /// Whether to enable pulse animation when progress > 0.8
+    let pulsing: Bool
+
+    // MARK: - State
+
+    /// Current pulse phase for animation
+    @State private var pulsePhase: Double = 0
 
     // MARK: - Computed Properties
 
     /// Calculate opacity based on progress and mode
     private var glowOpacity: Double {
+        baseOpacity + pulseOffset
+    }
+
+    /// Base opacity without pulse animation
+    private var baseOpacity: Double {
         switch mode {
         case .opacity, .combined:
             // Linear interpolation: 0.1 at 0%, 0.5 at 100%
@@ -74,6 +116,33 @@ struct EdgeGlow: View {
             // Constant opacity in length mode for consistent visibility
             return 0.35
         }
+    }
+
+    /// Opacity for frame mode (separate calculation)
+    private var frameOpacity: Double {
+        let base = Self.frameMinOpacity + (clampedProgress * (Self.frameMaxOpacity - Self.frameMinOpacity))
+        return base + pulseOffset
+    }
+
+    /// Pulse animation offset (only active when pulsing enabled and progress > threshold)
+    private var pulseOffset: Double {
+        guard pulsing && clampedProgress > Self.pulseThreshold else { return 0 }
+
+        // Calculate pulse intensity based on how far past threshold we are
+        let pulseProgress = (clampedProgress - Self.pulseThreshold) / (1.0 - Self.pulseThreshold)
+        let intensity = pulseProgress * Self.pulseAmplitude
+
+        // Use sine wave for smooth pulsing
+        return sin(pulsePhase) * intensity
+    }
+
+    /// Current pulse frequency based on progress
+    private var pulseFrequency: Double {
+        guard clampedProgress > Self.pulseThreshold else { return 0 }
+
+        // Interpolate frequency from base to max as progress increases
+        let pulseProgress = (clampedProgress - Self.pulseThreshold) / (1.0 - Self.pulseThreshold)
+        return Self.basePulseFrequency + (pulseProgress * (Self.maxPulseFrequency - Self.basePulseFrequency))
     }
 
     /// Progress clamped to valid range
@@ -98,17 +167,41 @@ struct EdgeGlow: View {
     ///   - progress: Progress value from 0.0 to 1.0
     ///   - position: Which edge to display the glow (default: .top)
     ///   - mode: How progress is visualized (default: .opacity for maximum subtlety)
-    init(progress: Double, position: Position = .top, mode: Mode = .opacity) {
+    ///   - pulsing: Whether to enable pulse animation when progress > 0.8 (default: false)
+    init(progress: Double, position: Position = .top, mode: Mode = .opacity, pulsing: Bool = false) {
         self.progress = progress
         self.position = position
         self.mode = mode
+        self.pulsing = pulsing
     }
 
     // MARK: - Body
 
     var body: some View {
+        Group {
+            if position == .frame {
+                frameView
+            } else {
+                singleEdgeView
+            }
+        }
+        .onAppear {
+            startPulseAnimationIfNeeded()
+        }
+        .onChange(of: pulsing) { _, newValue in
+            if newValue {
+                startPulseAnimationIfNeeded()
+            }
+        }
+        .onChange(of: progress) { _, _ in
+            startPulseAnimationIfNeeded()
+        }
+    }
+
+    /// Single edge glow (original behavior)
+    private var singleEdgeView: some View {
         GeometryReader { geometry in
-            glowLine(in: geometry)
+            glowLine(in: geometry, for: position)
         }
         .frame(
             width: position.isHorizontal ? nil : Self.lineThickness + Self.blurRadius * 2,
@@ -116,26 +209,118 @@ struct EdgeGlow: View {
         )
     }
 
+    /// Frame mode: all 4 edges rendered simultaneously
+    private var frameView: some View {
+        GeometryReader { geometry in
+            ZStack {
+                // Top edge
+                topEdgeGlow(in: geometry)
+                // Bottom edge
+                bottomEdgeGlow(in: geometry)
+                // Leading edge
+                leadingEdgeGlow(in: geometry)
+                // Trailing edge
+                trailingEdgeGlow(in: geometry)
+            }
+        }
+    }
+
+    // MARK: - Frame Edge Views
+
+    private func topEdgeGlow(in geometry: GeometryProxy) -> some View {
+        Rectangle()
+            .fill(
+                LinearGradient(
+                    colors: [.white, .white],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .frame(width: geometry.size.width, height: Self.lineThickness)
+            .blur(radius: Self.blurRadius)
+            .opacity(frameOpacity)
+            .position(x: geometry.size.width / 2, y: Self.blurRadius)
+    }
+
+    private func bottomEdgeGlow(in geometry: GeometryProxy) -> some View {
+        Rectangle()
+            .fill(
+                LinearGradient(
+                    colors: [.white, .white],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .frame(width: geometry.size.width, height: Self.lineThickness)
+            .blur(radius: Self.blurRadius)
+            .opacity(frameOpacity)
+            .position(x: geometry.size.width / 2, y: geometry.size.height - Self.blurRadius)
+    }
+
+    private func leadingEdgeGlow(in geometry: GeometryProxy) -> some View {
+        Rectangle()
+            .fill(
+                LinearGradient(
+                    colors: [.white, .white],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .frame(width: Self.lineThickness, height: geometry.size.height)
+            .blur(radius: Self.blurRadius)
+            .opacity(frameOpacity)
+            .position(x: Self.blurRadius, y: geometry.size.height / 2)
+    }
+
+    private func trailingEdgeGlow(in geometry: GeometryProxy) -> some View {
+        Rectangle()
+            .fill(
+                LinearGradient(
+                    colors: [.white, .white],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .frame(width: Self.lineThickness, height: geometry.size.height)
+            .blur(radius: Self.blurRadius)
+            .opacity(frameOpacity)
+            .position(x: geometry.size.width - Self.blurRadius, y: geometry.size.height / 2)
+    }
+
+    // MARK: - Pulse Animation
+
+    private func startPulseAnimationIfNeeded() {
+        guard pulsing && clampedProgress > Self.pulseThreshold else { return }
+
+        // Use a timer-based animation for smooth continuous pulsing
+        withAnimation(
+            .linear(duration: 1.0 / pulseFrequency)
+            .repeatForever(autoreverses: false)
+        ) {
+            pulsePhase = .pi * 2
+        }
+    }
+
     // MARK: - Private Views
 
     @ViewBuilder
-    private func glowLine(in geometry: GeometryProxy) -> some View {
-        let fullLength = position.isHorizontal ? geometry.size.width : geometry.size.height
+    private func glowLine(in geometry: GeometryProxy, for edgePosition: Position) -> some View {
+        let fullLength = edgePosition.isHorizontal ? geometry.size.width : geometry.size.height
         let glowLength = fullLength * lengthFraction
 
-        ZStack(alignment: position.isHorizontal ? .leading : .top) {
+        ZStack(alignment: edgePosition.isHorizontal ? .leading : .top) {
             // The glow line with gradient for soft edges
-            if position.isHorizontal {
-                horizontalGlow(length: glowLength, fullLength: fullLength)
+            if edgePosition.isHorizontal {
+                horizontalGlow(length: glowLength, fullLength: fullLength, position: edgePosition)
             } else {
-                verticalGlow(length: glowLength, fullLength: fullLength)
+                verticalGlow(length: glowLength, fullLength: fullLength, position: edgePosition)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: position.isHorizontal ? .leading : .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: edgePosition.isHorizontal ? .leading : .top)
     }
 
-    /// Horizontal glow for top edge
-    private func horizontalGlow(length: CGFloat, fullLength: CGFloat) -> some View {
+    /// Horizontal glow for top/bottom edge
+    private func horizontalGlow(length: CGFloat, fullLength: CGFloat, position: Position) -> some View {
         // Use a gradient that fades at the trailing edge for smooth appearance
         Rectangle()
             .fill(
@@ -151,8 +336,8 @@ struct EdgeGlow: View {
             .frame(maxHeight: .infinity, alignment: .center)
     }
 
-    /// Vertical glow for leading edge
-    private func verticalGlow(length: CGFloat, fullLength: CGFloat) -> some View {
+    /// Vertical glow for leading/trailing edge
+    private func verticalGlow(length: CGFloat, fullLength: CGFloat, position: Position) -> some View {
         Rectangle()
             .fill(
                 LinearGradient(
@@ -197,17 +382,21 @@ struct EdgeGlowModifier: ViewModifier {
     let progress: Double
     let position: EdgeGlow.Position
     let mode: EdgeGlow.Mode
+    let pulsing: Bool
 
     func body(content: Content) -> some View {
         content.overlay(alignment: overlayAlignment) {
-            EdgeGlow(progress: progress, position: position, mode: mode)
+            EdgeGlow(progress: progress, position: position, mode: mode, pulsing: pulsing)
         }
     }
 
     private var overlayAlignment: Alignment {
         switch position {
         case .top: return .top
+        case .bottom: return .bottom
         case .leading: return .leading
+        case .trailing: return .trailing
+        case .frame: return .center
         }
     }
 }
@@ -218,12 +407,14 @@ extension View {
     ///   - progress: Progress value from 0.0 to 1.0
     ///   - position: Which edge to display the glow (default: .top)
     ///   - mode: How progress is visualized (default: .opacity)
+    ///   - pulsing: Whether to enable pulse animation when progress > 0.8 (default: false)
     func edgeGlow(
         progress: Double,
         position: EdgeGlow.Position = .top,
-        mode: EdgeGlow.Mode = .opacity
+        mode: EdgeGlow.Mode = .opacity,
+        pulsing: Bool = false
     ) -> some View {
-        modifier(EdgeGlowModifier(progress: progress, position: position, mode: mode))
+        modifier(EdgeGlowModifier(progress: progress, position: position, mode: mode, pulsing: pulsing))
     }
 }
 
@@ -405,4 +596,110 @@ private struct AnimatedEdgeGlowPreview: View {
             }
         }
     }
+}
+
+// MARK: - Frame Mode Previews
+
+#Preview("Frame Mode - Static Progress Levels") {
+    VStack(spacing: 30) {
+        Text("Frame Mode: All 4 edges glow")
+            .font(.caption)
+            .foregroundColor(.dpSecondaryText)
+
+        ForEach([0.0, 0.25, 0.5, 0.75, 1.0], id: \.self) { progress in
+            VStack(spacing: 8) {
+                Text("\(Int(progress * 100))%")
+                    .font(.caption2)
+                    .foregroundColor(.dpSecondaryText)
+
+                ZStack {
+                    Color.dpBackground
+
+                    Text("Pressure")
+                        .font(.caption)
+                        .foregroundColor(.dpSecondaryText)
+                }
+                .frame(width: 120, height: 80)
+                .overlay {
+                    EdgeGlow(progress: progress, position: .frame)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 4)
+                        .stroke(Color.dpSeparator, lineWidth: 0.5)
+                )
+            }
+        }
+    }
+    .padding()
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Color.dpBackground)
+}
+
+#Preview("Frame Mode - Full Screen Pressure Chamber") {
+    FrameModePreview()
+}
+
+/// Helper view for frame mode animated preview
+private struct FrameModePreview: View {
+    @State private var progress: Double = 0
+
+    var body: some View {
+        ZStack {
+            Color.dpBackground
+
+            VStack(spacing: 24) {
+                Text("Pressure Chamber Effect")
+                    .font(.headline)
+                    .foregroundColor(.dpPrimaryText)
+
+                Text("Progress: \(Int(progress * 100))%")
+                    .font(.caption)
+                    .foregroundColor(.dpSecondaryText)
+
+                Text(progress > 0.8 ? "Pulsing active!" : "")
+                    .font(.caption2)
+                    .foregroundColor(.dpSecondaryText)
+
+                Button("Restart") {
+                    progress = 0
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation(.linear(duration: 8)) {
+                            progress = 1
+                        }
+                    }
+                }
+                .foregroundColor(.dpPrimaryText)
+            }
+        }
+        .overlay {
+            EdgeGlow(progress: progress, position: .frame, pulsing: true)
+        }
+        .ignoresSafeArea()
+        .onAppear {
+            withAnimation(.linear(duration: 8)) {
+                progress = 1
+            }
+        }
+    }
+}
+
+#Preview("Frame Mode - High Pressure with Pulsing") {
+    ZStack {
+        Color.dpBackground
+
+        VStack(spacing: 24) {
+            Text("High Pressure State")
+                .font(.headline)
+                .foregroundColor(.dpPrimaryText)
+
+            Text("Progress: 95% (pulsing)")
+                .font(.caption)
+                .foregroundColor(.dpSecondaryText)
+        }
+    }
+    .overlay {
+        EdgeGlow(progress: 0.95, position: .frame, pulsing: true)
+    }
+    .ignoresSafeArea()
 }
