@@ -18,21 +18,15 @@ struct DitheringOverlay: ViewModifier {
     let intensity: Double
     let animated: Bool
 
-    /// Current seed for the noise pattern (animated when `animated` is true)
+    /// Seed for static noise pattern (used when animated is false)
     @State private var seed: UInt64 = 0
-
-    /// Controls whether the animation timer is active
-    @State private var isActive: Bool = false
-
-    /// Timer for animation - fires every 100ms for subtle pattern shifts
-    private let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
 
     /// Maximum opacity for the overlay (keeps effect subtle)
     private let maxOpacity: Double = 0.15
 
     /// Calculated opacity based on intensity
     private var effectiveOpacity: Double {
-        intensity * maxOpacity
+        min(max(intensity, 0), 1) * maxOpacity
     }
 
     init(intensity: Double = 0.3, animated: Bool = false) {
@@ -43,23 +37,26 @@ struct DitheringOverlay: ViewModifier {
     func body(content: Content) -> some View {
         content
             .overlay {
-                DitheringPattern(seed: seed)
-                    .opacity(effectiveOpacity)
-                    .blendMode(.overlay)
-                    .allowsHitTesting(false)
+                Group {
+                    if animated {
+                        // Use TimelineView for efficient animation - only runs when view is visible
+                        TimelineView(.animation(minimumInterval: 0.1)) { timeline in
+                            DitheringPattern(seed: UInt64(timeline.date.timeIntervalSince1970 * 10))
+                                .opacity(effectiveOpacity)
+                                .blendMode(.overlay)
+                        }
+                    } else {
+                        // Static pattern with fixed seed
+                        DitheringPattern(seed: seed)
+                            .opacity(effectiveOpacity)
+                            .blendMode(.overlay)
+                    }
+                }
+                .allowsHitTesting(false)
             }
             .onAppear {
-                isActive = true
-                // Initialize with a random seed for variety
+                // Initialize with a random seed for variety (static mode)
                 seed = UInt64.random(in: 0..<UInt64.max)
-            }
-            .onDisappear {
-                isActive = false
-            }
-            .onReceive(timer) { _ in
-                guard isActive && animated else { return }
-                // Increment seed for pattern variation
-                seed &+= 1
             }
     }
 }
