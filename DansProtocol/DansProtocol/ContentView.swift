@@ -117,6 +117,10 @@ struct ContentView: View {
             if newPhase == .background || newPhase == .inactive {
                 try? modelContext.save()
             }
+            if newPhase == .active {
+                // 포그라운드 복귀 시 상태 재평가
+                viewModel.presentPendingIfPossible()
+            }
         }
         .onAppear {
             viewModel.determineState(sessions: sessions)
