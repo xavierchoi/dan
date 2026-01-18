@@ -64,9 +64,10 @@ struct JournalingView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let questionAreaHeight = min(geometry.size.height * 0.35, 280)
-            let buttonAreaHeight: CGFloat = 100
-            let inputAreaHeight = geometry.size.height - questionAreaHeight - buttonAreaHeight - geometry.safeAreaInsets.bottom
+            // Question area: 40% of available height, minimum 200pt for readability
+            let questionAreaHeight = max(geometry.size.height * 0.40, 200)
+            let buttonAreaHeight: CGFloat = 80
+            let inputAreaHeight = max(geometry.size.height - questionAreaHeight - buttonAreaHeight - geometry.safeAreaInsets.bottom, 120)
 
             ZStack {
                 // MARK: - Background Layer with Effects (drawingGroup compatible)
@@ -128,16 +129,15 @@ struct JournalingView: View {
             Color.dpBackground.ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 0) {
-                // MARK: Question Area (fixed height, scrollable if needed)
-                ScrollView(.vertical, showsIndicators: false) {
-                    QuestionView(
-                        text: displayedQuestionText,
-                        language: viewModel.session.language,
-                        isExiting: isQuestionExiting
-                    )
-                    .id(displayedQuestionText)
-                }
-                .frame(height: questionAreaHeight)
+                // MARK: Question Area (fixed height, top-aligned, clipped if overflow)
+                QuestionView(
+                    text: displayedQuestionText,
+                    language: viewModel.session.language,
+                    isExiting: isQuestionExiting
+                )
+                .id(displayedQuestionText)
+                .frame(height: questionAreaHeight, alignment: .top)
+                .clipped()
 
                 // MARK: Input Area (placeholder - actual TextField in separate layer)
                 Color.clear
