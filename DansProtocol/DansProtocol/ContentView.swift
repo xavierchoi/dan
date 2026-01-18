@@ -65,7 +65,7 @@ struct ContentView: View {
             case .part2Waiting:
                 if let session = viewModel.currentSession {
                     Part2WaitingView(session: session) {
-                        session.status = .part3
+                        session.status = .part3Synthesis
                         viewModel.appState = .part3Synthesis
                     }
                 }
@@ -73,6 +73,7 @@ struct ContentView: View {
             case .part3Synthesis:
                 if let session = viewModel.currentSession {
                     SynthesisView(session: session) {
+                        session.status = .part3Components
                         viewModel.appState = .part3Components
                     }
                 }

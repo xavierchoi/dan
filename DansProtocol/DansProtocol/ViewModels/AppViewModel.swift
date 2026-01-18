@@ -7,7 +7,7 @@ class AppViewModel {
     var appState: AppState = .loading
     var showingInterrupt: Bool = false
     var currentInterruptQuestionId: String?
-    var pendingNotificationId: String?
+    private var pendingNotificationIds: [String] = []
 
     enum AppState {
         case loading
@@ -27,14 +27,17 @@ class AppViewModel {
         }
 
         currentSession = latest
+        refreshPendingNotifications(for: latest)
 
         switch latest.status {
         case .notStarted, .part1:
             appState = .part1
         case .part2:
             appState = .part2Waiting
-        case .part3:
+        case .part3Synthesis:
             appState = .part3Synthesis
+        case .part3Components:
+            appState = .part3Components
         case .completed:
             appState = .history
         }
@@ -43,24 +46,100 @@ class AppViewModel {
     }
 
     func startNewSession() {
+        NotificationService.shared.cancelAll()
+        PendingInterruptStore.clear()
+        SnoozeStore.clear()
+        pendingNotificationIds = []
         currentSession = nil
         appState = .onboarding
     }
 
-    func handleNotificationTap(questionId: String) {
-        pendingNotificationId = questionId
+    func handleNotificationTap(questionId: String, sessionId: UUID?) {
+        guard let session = currentSession else { return }
+        if let sessionId, sessionId != session.id {
+            return
+        }
+        PendingInterruptStore.add(questionId, sessionId: session.id)
+        refreshPendingNotifications(for: session)
         presentPendingIfPossible()
     }
 
     func presentPendingIfPossible() {
-        guard appState == .part2Waiting, let id = pendingNotificationId else { return }
-        currentInterruptQuestionId = id
+        guard appState == .part2Waiting, !showingInterrupt, let session = currentSession else { return }
+        refreshPendingNotifications(for: session)
+
+        let validIds = validPendingIds(for: session)
+        if validIds.isEmpty {
+            PendingInterruptStore.save([], for: session.id)
+            pendingNotificationIds = []
+            return
+        }
+
+        currentInterruptQuestionId = validIds[0]
         showingInterrupt = true
-        pendingNotificationId = nil
     }
 
     func dismissInterrupt() {
         showingInterrupt = false
         currentInterruptQuestionId = nil
+        DispatchQueue.main.async { [weak self] in
+            self?.presentPendingIfPossible()
+        }
+    }
+
+    /// Handle skip with snooze logic: schedule reminder if under max snooze count
+    func skipInterrupt(questionId: String) {
+        guard let session = currentSession else {
+            dismissInterrupt()
+            return
+        }
+
+        // Increment snooze count
+        let newCount = SnoozeStore.incrementSnooze(for: questionId, sessionId: session.id)
+
+        // If under max snooze, schedule a 30-minute reminder
+        if newCount < SnoozeStore.maxSnoozeCount {
+            NotificationService.shared.scheduleSnoozeReminder(
+                questionId: questionId,
+                sessionId: session.id,
+                language: session.language
+            )
+        }
+        // If max snooze reached, no notification - user must answer in-app
+
+        // Remove from pending and dismiss
+        PendingInterruptStore.remove(questionId, sessionId: session.id)
+        dismissInterrupt()
+    }
+
+    func handleInterruptAnswered(questionId: String, sessionId: UUID) {
+        guard let session = currentSession, session.id == sessionId else { return }
+        PendingInterruptStore.remove(questionId, sessionId: sessionId)
+        refreshPendingNotifications(for: session)
+        presentPendingIfPossible()
+    }
+
+    private func refreshPendingNotifications(for session: ProtocolSession) {
+        pendingNotificationIds = PendingInterruptStore.load(for: session.id)
+        let prunedIds = validPendingIds(for: session)
+        if prunedIds != pendingNotificationIds {
+            pendingNotificationIds = prunedIds
+            PendingInterruptStore.save(prunedIds, for: session.id)
+        }
+    }
+
+    private func validPendingIds(for session: ProtocolSession) -> [String] {
+        let validIds = Set(
+            QuestionService.shared.questions(for: 2, type: .interrupt).map(\.id)
+        )
+        let answeredIds = Set(
+            session.entries
+                .filter { !$0.response.isEmpty }
+                .map(\.questionKey)
+        )
+        if !validIds.isEmpty, validIds.subtracting(answeredIds).isEmpty {
+            return []
+        }
+        return pendingNotificationIds.filter { validIds.contains($0) && !answeredIds.contains($0) }
     }
 }
