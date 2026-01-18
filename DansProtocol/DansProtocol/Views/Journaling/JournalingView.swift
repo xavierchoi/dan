@@ -17,6 +17,11 @@ struct JournalingView: View {
         self.onComplete = onComplete
     }
 
+    /// Dithering intensity based on progress (activates > 0.7)
+    private var ditheringIntensity: Double {
+        max(0, (viewModel.progress - 0.7) / 0.3) * 0.4
+    }
+
     var body: some View {
         ZStack {
             Color.dpBackground.ignoresSafeArea()
@@ -54,8 +59,24 @@ struct JournalingView: View {
                 .padding(Spacing.screenPadding)
                 .padding(.bottom, Spacing.screenPadding)
             }
+
+            // Progress indicator overlay in top-right
+            VStack {
+                HStack {
+                    Spacer()
+                    Text(String(format: "%02d / %02d", viewModel.currentQuestionIndex + 1, viewModel.totalQuestions))
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(.dpSecondaryText)
+                        .padding(.trailing, Spacing.screenPadding)
+                        .padding(.top, Spacing.screenPadding)
+                }
+                Spacer()
+            }
         }
-        .edgeGlow(progress: viewModel.progress, position: .top, mode: .opacity)
+        .edgeGlow(progress: viewModel.progress, position: .frame, mode: .opacity, pulsing: viewModel.progress > 0.8)
+        .pressureTransition(isActive: isTransitioning)
+        .chromaticAberration(isActive: isQuestionExiting)
+        .ditheringOverlay(intensity: ditheringIntensity, animated: viewModel.progress > 0.7)
         .onAppear {
             // Initialize displayed text on first appear
             displayedQuestionText = viewModel.questionText
@@ -68,6 +89,9 @@ struct JournalingView: View {
         guard !isTransitioning else { return }
         isTransitioning = true
 
+        // Trigger haptic feedback
+        HapticEngine.shared.buttonTap()
+
         // Trigger afterimage effect
         isQuestionExiting = true
 
@@ -77,6 +101,9 @@ struct JournalingView: View {
             displayedQuestionText = viewModel.questionText
             isQuestionExiting = false
             isTransitioning = false
+
+            // Haptic feedback for question transition
+            HapticEngine.shared.questionTransition(progress: viewModel.progress)
         }
     }
 
@@ -85,6 +112,9 @@ struct JournalingView: View {
         // Prevent rapid tapping
         guard !isTransitioning else { return }
         isTransitioning = true
+
+        // Trigger haptic feedback
+        HapticEngine.shared.buttonTap()
 
         let wasLastQuestion = viewModel.isLastQuestion
 
@@ -101,6 +131,9 @@ struct JournalingView: View {
                 displayedQuestionText = viewModel.questionText
                 isQuestionExiting = false
                 isTransitioning = false
+
+                // Haptic feedback for question transition
+                HapticEngine.shared.questionTransition(progress: viewModel.progress)
             }
         }
     }

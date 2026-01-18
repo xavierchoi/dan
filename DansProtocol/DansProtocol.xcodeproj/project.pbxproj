@@ -10,6 +10,10 @@
 		00274311D99A3F8C55943D50 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E2AD7E023FF2BEEB14F4CE6 /* AppViewModel.swift */; };
 		1A2B3C4D5E6F1A2B3C4D5E6F /* Afterimage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A1B2C3D4E5F6 /* Afterimage.swift */; };
 		2B3C4D5E6F1A2B3C4D5E6F1A /* EdgeGlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A6B1C2D3E4F5A6 /* EdgeGlow.swift */; };
+		4C5D6E7F8A9B4C5D6E7F8A9B /* ChromaticAberration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D2E3F4A5B6C1D2E3F4A5B6 /* ChromaticAberration.swift */; };
+		5D6E7F8A9B4C5D6E7F8A9B4C /* DitheringOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3F4A5B6C1D2E3F4A5B6C1 /* DitheringOverlay.swift */; };
+		6E7F8A9B4C5D6E7F8A9B4C5D /* PressureTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F4A5B6C1D2E3F4A5B6C1D2 /* PressureTransition.swift */; };
+		7F8A9B4C5D6E7F8A9B4C5D6E /* HapticEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A5B6C1D2E3F4A5B6C1D2E3 /* HapticEngine.swift */; };
 		01598381D541F8F4BEAA0B55 /* QuestionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31AC943AA95B68F29A8739EA /* QuestionServiceTests.swift */; };
 		0BD1D5CA3AF221F42E61DF0F /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF63CDBA9C3EF1FAC5F6653 /* ShareSheet.swift */; };
 		0D526D57352C8BB7D3583192 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C540338993B82F3AA636931 /* ContentView.swift */; };
@@ -82,6 +86,10 @@
 		0757A8CB3ECB994F5CB1369C /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6A1B2C3D4E5F6 /* Afterimage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Afterimage.swift; sourceTree = "<group>"; };
 		B1C2D3E4F5A6B1C2D3E4F5A6 /* EdgeGlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeGlow.swift; sourceTree = "<group>"; };
+		C1D2E3F4A5B6C1D2E3F4A5B6 /* ChromaticAberration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChromaticAberration.swift; sourceTree = "<group>"; };
+		D2E3F4A5B6C1D2E3F4A5B6C1 /* DitheringOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DitheringOverlay.swift; sourceTree = "<group>"; };
+		E3F4A5B6C1D2E3F4A5B6C1D2 /* PressureTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressureTransition.swift; sourceTree = "<group>"; };
+		F4A5B6C1D2E3F4A5B6C1D2E3 /* HapticEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticEngine.swift; sourceTree = "<group>"; };
 		1A90323408CA2D8264C40B8B /* FontRequirements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontRequirements.swift; sourceTree = "<group>"; };
 		219C7D686CFE72A994D902EB /* JournalingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalingView.swift; sourceTree = "<group>"; };
 		254443C77F1AA13B005E3379 /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
@@ -161,6 +169,9 @@
 			children = (
 				A1B2C3D4E5F6A1B2C3D4E5F6 /* Afterimage.swift */,
 				582EA3029651AA63DA2ABEB7 /* BreathingText.swift */,
+				C1D2E3F4A5B6C1D2E3F4A5B6 /* ChromaticAberration.swift */,
+				D2E3F4A5B6C1D2E3F4A5B6C1 /* DitheringOverlay.swift */,
+				E3F4A5B6C1D2E3F4A5B6C1D2 /* PressureTransition.swift */,
 			);
 			path = Modifiers;
 			sourceTree = "<group>";
@@ -252,6 +263,7 @@
 			isa = PBXGroup;
 			children = (
 				CF93061100CC96BCB2571F7B /* EmphasisParser.swift */,
+				F4A5B6C1D2E3F4A5B6C1D2E3 /* HapticEngine.swift */,
 				4F41445EADDC175942476E6B /* NotificationService.swift */,
 				BB25DB689F8EE5E7B1EF7DCA /* QuestionService.swift */,
 			);
@@ -483,7 +495,11 @@
 				1A2B3C4D5E6F1A2B3C4D5E6F /* Afterimage.swift in Sources */,
 				00274311D99A3F8C55943D50 /* AppViewModel.swift in Sources */,
 				3CEC5CF0EBC68131BB1C0DC9 /* BreathingText.swift in Sources */,
+				4C5D6E7F8A9B4C5D6E7F8A9B /* ChromaticAberration.swift in Sources */,
+				5D6E7F8A9B4C5D6E7F8A9B4C /* DitheringOverlay.swift in Sources */,
 				2B3C4D5E6F1A2B3C4D5E6F1A /* EdgeGlow.swift in Sources */,
+				7F8A9B4C5D6E7F8A9B4C5D6E /* HapticEngine.swift in Sources */,
+				6E7F8A9B4C5D6E7F8A9B4C5D /* PressureTransition.swift in Sources */,
 				B06333C8C8BEB6BB5CC02F95 /* Colors.swift in Sources */,
 				3840A4A1AE5A5C9041E8DBF3 /* CompletionView.swift in Sources */,
 				BA9CDEB4F8A37265E4820540 /* ComponentsInputView.swift in Sources */,

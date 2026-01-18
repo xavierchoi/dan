@@ -31,6 +31,10 @@ class JournalingViewModel {
         Double(currentQuestionIndex + 1) / Double(questions.count)
     }
 
+    var totalQuestions: Int {
+        questions.count
+    }
+
     var placeholder: String {
         session.language == "ko" ? "여기에 생각을 적어주세요..." : "Your thoughts..."
     }
