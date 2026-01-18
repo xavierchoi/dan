@@ -20,11 +20,13 @@ targets:
       - path: DansProtocol
         excludes:
           - "**/*.xcassets"
-      - path: DansProtocol/Resources
-        type: folder
-        buildPhase: resources
+          - "**/*.json"
+          - "**/Fonts/**"
+          - "Info.plist"
     resources:
       - path: DansProtocol/Resources/Assets.xcassets
+      - path: DansProtocol/Resources/Questions.json
+      - path: DansProtocol/Resources/Fonts
     settings:
       base:
         INFOPLIST_FILE: DansProtocol/Info.plist
