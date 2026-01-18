@@ -10,7 +10,7 @@ struct NotificationPermissionView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            VStack(spacing: Spacing.sectionSpacing) {
+            VStack(spacing: Spacing.sectionSpacing * 1.5) {
                 Text(language == "ko" ? "알림을 활성화하세요" : "Enable notifications")
                     .font(.dpQuestionLarge(for: language))
                     .foregroundColor(.dpPrimaryText)
@@ -61,7 +61,7 @@ struct NotificationPermissionView: View {
                     )
                 }
             }
-            .padding(.bottom, Spacing.sectionSpacing)
+            .padding(.bottom, Spacing.sectionSpacing * 1.5)
         }
         .padding(.horizontal, Spacing.screenPadding)
         .background(Color.dpBackground)

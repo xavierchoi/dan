@@ -9,7 +9,7 @@ struct LanguageSelectionView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            VStack(spacing: Spacing.sectionSpacing) {
+            VStack(spacing: Spacing.sectionSpacing * 1.5) {
                 Text(selectedLanguage == "ko" ? "언어를 선택하세요" : "Choose your language")
                     .font(.dpQuestionLarge(for: selectedLanguage))
                     .foregroundColor(.dpPrimaryText)
@@ -20,14 +20,20 @@ struct LanguageSelectionView: View {
                         title: "English",
                         code: "en",
                         isSelected: selectedLanguage == "en",
-                        onSelect: { selectedLanguage = "en" }
+                        onSelect: {
+                            HapticEngine.shared.buttonTap()
+                            selectedLanguage = "en"
+                        }
                     )
 
                     LanguageOption(
                         title: "한국어",
                         code: "ko",
                         isSelected: selectedLanguage == "ko",
-                        onSelect: { selectedLanguage = "ko" }
+                        onSelect: {
+                            HapticEngine.shared.buttonTap()
+                            selectedLanguage = "ko"
+                        }
                     )
                 }
             }
@@ -39,7 +45,7 @@ struct LanguageSelectionView: View {
                 Spacer()
                 TextButton(title: selectedLanguage == "ko" ? "계속 →" : "Continue →", action: onContinue)
             }
-            .padding(.bottom, Spacing.sectionSpacing)
+            .padding(.bottom, Spacing.sectionSpacing * 1.5)
         }
         .padding(.horizontal, Spacing.screenPadding)
         .background(Color.dpBackground)

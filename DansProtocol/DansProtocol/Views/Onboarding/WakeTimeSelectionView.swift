@@ -10,7 +10,7 @@ struct WakeTimeSelectionView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            VStack(spacing: Spacing.sectionSpacing) {
+            VStack(spacing: Spacing.sectionSpacing * 1.5) {
                 Text(language == "ko" ? "몇 시에 일어나시나요?" : "What time will you wake up?")
                     .font(.dpQuestionLarge(for: language))
                     .foregroundColor(.dpPrimaryText)
@@ -33,7 +33,7 @@ struct WakeTimeSelectionView: View {
                 Spacer()
                 TextButton(title: language == "ko" ? "계속 →" : "Continue →", action: onContinue)
             }
-            .padding(.bottom, Spacing.sectionSpacing)
+            .padding(.bottom, Spacing.sectionSpacing * 1.5)
         }
         .padding(.horizontal, Spacing.screenPadding)
         .background(Color.dpBackground)

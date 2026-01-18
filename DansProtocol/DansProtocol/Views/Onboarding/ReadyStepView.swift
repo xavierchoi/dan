@@ -9,7 +9,7 @@ struct ReadyStepView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            VStack(spacing: Spacing.sectionSpacing) {
+            VStack(spacing: Spacing.sectionSpacing * 1.5) {
                 Text(language == "ko" ? "\u{C900}\u{BE44}\u{B418}\u{C5C8}\u{C2B5}\u{B2C8}\u{B2E4}" : "You're ready")
                     .font(.dpQuestionLarge(for: language))
                     .foregroundColor(.dpPrimaryText)
@@ -55,7 +55,7 @@ struct ReadyStepView: View {
                     action: onBack
                 )
             }
-            .padding(.bottom, Spacing.sectionSpacing)
+            .padding(.bottom, Spacing.sectionSpacing * 1.5)
         }
         .padding(.horizontal, Spacing.screenPadding)
         .background(Color.dpBackground)
