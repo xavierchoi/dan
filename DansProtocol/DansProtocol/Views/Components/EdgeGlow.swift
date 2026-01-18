@@ -1,14 +1,14 @@
 import SwiftUI
 
-/// A subtle, almost subliminal progress indicator that appears as a glowing edge.
+/// A cinematic progress indicator that creates psychological pressure through light and shadow.
 ///
-/// Rather than displaying explicit progress (like a percentage bar), this component
-/// creates a barely-perceptible glow at the screen edge that users "feel" rather than
-/// consciously track. This aligns with Dan's Protocol's typographic tension design system.
+/// This component creates a visible, atmospheric glow at screen edges that intensifies
+/// as progress increases. The effect is designed to feel like "walls closing in" -
+/// creating subtle but perceptible pressure that users experience viscerally.
 ///
 /// Three position modes are available:
 /// - **Top/Leading**: Single edge glow (original behavior)
-/// - **Frame**: All 4 edges glow simultaneously, creating a "walls closing in" effect
+/// - **Frame**: All 4 edges glow simultaneously with corner vignettes - maximum pressure effect
 ///
 /// Two visualization modes are available:
 /// - **Opacity mode**: Full-width glow that brightens as progress increases (more subliminal)
@@ -66,22 +66,26 @@ struct EdgeGlow: View {
     private static let maxOpacity: Double = 0.5
     /// The glow line thickness in points
     private static let lineThickness: CGFloat = 1
-    /// Blur radius for the glow effect (2-4px as per spec)
-    private static let blurRadius: CGFloat = 3
+    /// Blur radius for the glow effect - increased for cinematic atmosphere
+    private static let blurRadius: CGFloat = 6
 
     // Frame mode specific constants
-    /// Minimum opacity for frame mode at 0% progress (barely visible)
-    private static let frameMinOpacity: Double = 0.05
-    /// Maximum opacity for frame mode at 100% progress
-    private static let frameMaxOpacity: Double = 0.5
-    /// Threshold at which pulsing begins
+    /// Minimum opacity for frame mode at 0% progress (clearly visible from start)
+    private static let frameMinOpacity: Double = 0.25
+    /// Maximum opacity for frame mode at 100% progress (dramatic climax)
+    private static let frameMaxOpacity: Double = 0.7
+    /// Threshold at which INTENSE pulsing begins (subtle pulse always active)
     private static let pulseThreshold: Double = 0.8
-    /// Base pulse frequency (cycles per second) at threshold
+    /// Base pulse frequency (cycles per second) - constant breathing at all times
     private static let basePulseFrequency: Double = 0.5
     /// Maximum pulse frequency at 100% progress
     private static let maxPulseFrequency: Double = 2.0
-    /// Pulse amplitude (opacity variation)
+    /// Pulse amplitude (opacity variation) - increases with progress
     private static let pulseAmplitude: Double = 0.15
+    /// Minimum pulse amplitude at 0% progress (subtle breathing)
+    private static let minPulseAmplitude: Double = 0.03
+    /// Corner vignette opacity multiplier
+    private static let vignetteIntensity: Double = 0.4
 
     // MARK: - Properties
 
@@ -91,7 +95,7 @@ struct EdgeGlow: View {
     let position: Position
     /// How the progress is visualized
     let mode: Mode
-    /// Whether to enable pulse animation when progress > 0.8
+    /// Whether to enable pulse animation (subtle breathing at all times, intensifies above 80%)
     let pulsing: Bool
 
     // MARK: - State
@@ -124,25 +128,39 @@ struct EdgeGlow: View {
         return base + pulseOffset
     }
 
-    /// Pulse animation offset (only active when pulsing enabled and progress > threshold)
+    /// Pulse animation offset - always active with subtle breathing, intensifies with progress
     private var pulseOffset: Double {
-        guard pulsing && clampedProgress > Self.pulseThreshold else { return 0 }
+        guard pulsing else { return 0 }
 
-        // Calculate pulse intensity based on how far past threshold we are
-        let pulseProgress = (clampedProgress - Self.pulseThreshold) / (1.0 - Self.pulseThreshold)
-        let intensity = pulseProgress * Self.pulseAmplitude
+        // Calculate pulse intensity: subtle at low progress, dramatic at high progress
+        let intensity: Double
+        if clampedProgress > Self.pulseThreshold {
+            // Above threshold: dramatic pulsing
+            let pulseProgress = (clampedProgress - Self.pulseThreshold) / (1.0 - Self.pulseThreshold)
+            intensity = Self.minPulseAmplitude + (pulseProgress * (Self.pulseAmplitude - Self.minPulseAmplitude))
+        } else {
+            // Below threshold: subtle constant breathing
+            // Amplitude grows linearly from minPulseAmplitude at 0% to minPulseAmplitude*2 at threshold
+            let preThresholdGrowth = clampedProgress / Self.pulseThreshold
+            intensity = Self.minPulseAmplitude * (1.0 + preThresholdGrowth)
+        }
 
         // Use sine wave for smooth pulsing
         return sin(pulsePhase) * intensity
     }
 
-    /// Current pulse frequency based on progress
+    /// Current pulse frequency based on progress - always base frequency, accelerates above threshold
     private var pulseFrequency: Double {
-        guard clampedProgress > Self.pulseThreshold else { return 0 }
+        guard pulsing else { return 0 }
 
-        // Interpolate frequency from base to max as progress increases
-        let pulseProgress = (clampedProgress - Self.pulseThreshold) / (1.0 - Self.pulseThreshold)
-        return Self.basePulseFrequency + (pulseProgress * (Self.maxPulseFrequency - Self.basePulseFrequency))
+        if clampedProgress > Self.pulseThreshold {
+            // Above threshold: accelerating frequency
+            let pulseProgress = (clampedProgress - Self.pulseThreshold) / (1.0 - Self.pulseThreshold)
+            return Self.basePulseFrequency + (pulseProgress * (Self.maxPulseFrequency - Self.basePulseFrequency))
+        } else {
+            // Below threshold: constant slow breathing (0.5 Hz)
+            return Self.basePulseFrequency
+        }
     }
 
     /// Progress clamped to valid range
@@ -213,6 +231,9 @@ struct EdgeGlow: View {
     private var frameView: some View {
         GeometryReader { geometry in
             ZStack {
+                // Corner vignettes - "walls closing in" darkening effect
+                cornerVignettes(in: geometry)
+
                 // Top edge
                 topEdgeGlow(in: geometry)
                 // Bottom edge
@@ -223,6 +244,49 @@ struct EdgeGlow: View {
                 trailingEdgeGlow(in: geometry)
             }
         }
+    }
+
+    // MARK: - Corner Vignette Effect
+
+    /// Creates subtle corner darkening that intensifies with progress
+    private func cornerVignettes(in geometry: GeometryProxy) -> some View {
+        let vignetteOpacity = Self.vignetteIntensity * clampedProgress
+        let cornerSize = min(geometry.size.width, geometry.size.height) * 0.35
+
+        return ZStack {
+            // Top-leading corner
+            RadialGradient(
+                colors: [Color.black.opacity(vignetteOpacity), .clear],
+                center: .topLeading,
+                startRadius: 0,
+                endRadius: cornerSize
+            )
+
+            // Top-trailing corner
+            RadialGradient(
+                colors: [Color.black.opacity(vignetteOpacity), .clear],
+                center: .topTrailing,
+                startRadius: 0,
+                endRadius: cornerSize
+            )
+
+            // Bottom-leading corner
+            RadialGradient(
+                colors: [Color.black.opacity(vignetteOpacity), .clear],
+                center: .bottomLeading,
+                startRadius: 0,
+                endRadius: cornerSize
+            )
+
+            // Bottom-trailing corner
+            RadialGradient(
+                colors: [Color.black.opacity(vignetteOpacity), .clear],
+                center: .bottomTrailing,
+                startRadius: 0,
+                endRadius: cornerSize
+            )
+        }
+        .allowsHitTesting(false)
     }
 
     // MARK: - Frame Edge Views
@@ -290,11 +354,13 @@ struct EdgeGlow: View {
     // MARK: - Pulse Animation
 
     private func startPulseAnimationIfNeeded() {
-        guard pulsing && clampedProgress > Self.pulseThreshold else { return }
+        guard pulsing else { return }
 
-        // Use a timer-based animation for smooth continuous pulsing
+        // Always run pulse animation when pulsing is enabled
+        // Frequency and amplitude are controlled by progress level
+        let frequency = max(pulseFrequency, Self.basePulseFrequency)
         withAnimation(
-            .linear(duration: 1.0 / pulseFrequency)
+            .linear(duration: 1.0 / frequency)
             .repeatForever(autoreverses: false)
         ) {
             pulsePhase = .pi * 2
@@ -407,7 +473,7 @@ extension View {
     ///   - progress: Progress value from 0.0 to 1.0
     ///   - position: Which edge to display the glow (default: .top)
     ///   - mode: How progress is visualized (default: .opacity)
-    ///   - pulsing: Whether to enable pulse animation when progress > 0.8 (default: false)
+    ///   - pulsing: Whether to enable pulse animation - subtle breathing at all times, intensifies above 80% (default: false)
     func edgeGlow(
         progress: Double,
         position: EdgeGlow.Position = .top,
