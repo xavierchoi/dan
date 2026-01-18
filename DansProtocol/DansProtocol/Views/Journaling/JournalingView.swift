@@ -135,7 +135,7 @@ struct JournalingView: View {
                     TextButton(
                         title: viewModel.isLastQuestion ? NavLabels.complete(for: viewModel.session.language) : NavLabels.continueButton(for: viewModel.session.language),
                         action: handleContinue,
-                        isEnabled: !viewModel.currentResponse.isEmpty
+                        isEnabled: viewModel.canProceed
                     )
                 }
                 .padding(Spacing.screenPadding)

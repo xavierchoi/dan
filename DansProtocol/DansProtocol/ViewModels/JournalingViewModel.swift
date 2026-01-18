@@ -63,17 +63,23 @@ class JournalingViewModel {
         session.language == "ko" ? "여기에 생각을 적어주세요..." : "Your thoughts..."
     }
 
+    var canProceed: Bool {
+        !currentResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     func saveAndNext(modelContext: ModelContext) {
+        let trimmedResponse = currentResponse.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedResponse.isEmpty else { return }
         guard let question = currentQuestion else { return }
 
         // O(1) lookup using dictionary cache instead of O(n) array traversal
         if let existingEntry = entryByQuestionKey[question.id] {
-            existingEntry.response = currentResponse
+            existingEntry.response = trimmedResponse
         } else {
             let entry = JournalEntry(
                 part: question.part,
                 questionKey: question.id,
-                response: currentResponse
+                response: trimmedResponse
             )
             entry.session = session
             modelContext.insert(entry)
@@ -107,7 +113,7 @@ class JournalingViewModel {
         guard let entry = entryByQuestionKey[question.id] else {
             return false
         }
-        return !entry.response.isEmpty
+        return !entry.response.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     private func loadResponseForCurrentQuestion() {
