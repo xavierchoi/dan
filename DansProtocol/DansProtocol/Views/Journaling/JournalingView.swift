@@ -74,6 +74,8 @@ struct JournalingView: View {
                 Spacer()
             }
         }
+        // Micro-tremor: subliminal unease that builds with progress
+        .microTremor(intensity: 0.2 + viewModel.progress * 0.3)
         .edgeGlow(progress: viewModel.progress, pulsing: viewModel.progress > 0.8)
         .pressureTransition(isActive: isTransitioning)
         .chromaticAberration(isActive: isQuestionExiting)

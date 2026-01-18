@@ -54,6 +54,8 @@ struct InterruptView: View {
                 .padding(.bottom, Spacing.screenPadding)
             }
         }
+        // Micro-tremor: stronger tremor for disruption mood
+        .microTremor(intensity: 0.5)
         // Edge glow: always full brightness, always pulsing for urgency
         .edgeGlow(progress: 1.0, pulsing: true)
         // Chromatic aberration: jarring glitch on appear
