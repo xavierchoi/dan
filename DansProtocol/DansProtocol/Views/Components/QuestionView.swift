@@ -31,6 +31,8 @@ struct QuestionView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, Spacing.questionTopPadding)
         .padding(.horizontal, Spacing.screenPadding)
+        // Dramatic entrance: converges from edges like film title sequence
+        .edgeConvergence(isExiting: isExiting)
         // Exit effect: afterimage ghost when transitioning out
         .afterimage(isActive: isExiting)
         // Chromatic aberration flash during exit
