@@ -55,11 +55,11 @@ struct InterruptView: View {
             }
         }
         // Edge glow: always full brightness, always pulsing for urgency
-        .edgeGlow(progress: 1.0, position: .frame, pulsing: true)
+        .edgeGlow(progress: 1.0, pulsing: true)
         // Chromatic aberration: jarring glitch on appear
         .chromaticAberration(isActive: showGlitch, offset: 5)
-        // Dithering: higher intensity (0.5) than JournalingView, always animated
-        .ditheringOverlay(intensity: 0.5, animated: true)
+        // Dithering: jarring disruption at 0.6 intensity, always animated
+        .ditheringOverlay(intensity: 0.6, animated: true)
         .onAppear {
             // Instant appear with immediate glitch effect - no fade in
             showGlitch = true

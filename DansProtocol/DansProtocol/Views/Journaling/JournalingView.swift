@@ -17,9 +17,10 @@ struct JournalingView: View {
         self.onComplete = onComplete
     }
 
-    /// Dithering intensity based on progress (activates > 0.7)
+    /// Dithering intensity based on progress - always visible, scales with tension
+    /// Base 0.15 ensures film grain is visible from start, scales to 0.5 at completion
     private var ditheringIntensity: Double {
-        max(0, (viewModel.progress - 0.7) / 0.3) * 0.4
+        0.15 + (viewModel.progress * 0.35)  // 0.15 -> 0.5
     }
 
     var body: some View {
@@ -73,10 +74,10 @@ struct JournalingView: View {
                 Spacer()
             }
         }
-        .edgeGlow(progress: viewModel.progress, position: .frame, mode: .opacity, pulsing: viewModel.progress > 0.8)
+        .edgeGlow(progress: viewModel.progress, pulsing: viewModel.progress > 0.8)
         .pressureTransition(isActive: isTransitioning)
         .chromaticAberration(isActive: isQuestionExiting)
-        .ditheringOverlay(intensity: ditheringIntensity, animated: viewModel.progress > 0.7)
+        .ditheringOverlay(intensity: ditheringIntensity, animated: true)
         .onAppear {
             // Initialize displayed text on first appear
             displayedQuestionText = viewModel.questionText

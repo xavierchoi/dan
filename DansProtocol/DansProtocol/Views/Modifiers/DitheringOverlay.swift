@@ -1,12 +1,12 @@
 import SwiftUI
 
-/// A ViewModifier that applies a subtle noise/dithering texture overlay to create visual tension.
+/// A ViewModifier that applies a noise/dithering texture overlay to create visual tension.
 ///
-/// The dithering effect adds a film-grain aesthetic reminiscent of title sequences,
-/// creating subliminal visual texture without overwhelming the content.
+/// The dithering effect adds a film-grain aesthetic reminiscent of Se7en title sequences
+/// and old CRT monitors, creating palpable visual texture throughout the experience.
 ///
 /// Parameters:
-/// - `intensity`: Controls the visibility of the noise (0.0 to 1.0). Even at 1.0, max opacity is ~15%.
+/// - `intensity`: Controls the visibility of the noise (0.0 to 1.0). At 1.0, max opacity is 40%.
 /// - `animated`: When true, the pattern shifts subtly over time for a more organic feel.
 ///
 /// Usage:
@@ -21,8 +21,8 @@ struct DitheringOverlay: ViewModifier {
     /// Seed for static noise pattern (used when animated is false)
     @State private var seed: UInt64 = 0
 
-    /// Maximum opacity for the overlay (keeps effect subtle)
-    private let maxOpacity: Double = 0.15
+    /// Maximum opacity for the overlay - 0.4 creates visible film grain texture
+    private let maxOpacity: Double = 0.4
 
     /// Calculated opacity based on intensity
     private var effectiveOpacity: Double {
@@ -126,14 +126,14 @@ struct DitheringPattern: View {
 // MARK: - Convenience Extension
 
 extension View {
-    /// Applies a subtle dithering/noise texture overlay for visual tension.
+    /// Applies a dithering/noise texture overlay for visual tension.
     ///
-    /// The dithering effect adds a film-grain aesthetic that creates subliminal
-    /// visual texture without overwhelming the content.
+    /// The dithering effect adds a film-grain aesthetic reminiscent of Se7en
+    /// and old CRT monitors, creating palpable visual texture.
     ///
     /// - Parameters:
     ///   - intensity: Controls the visibility of the noise (0.0 to 1.0, default: 0.3).
-    ///                Even at 1.0, max opacity is capped at ~15%.
+    ///                At 1.0, max opacity is 40% for clearly visible grain.
     ///   - animated: When true, the pattern shifts subtly over time (default: false).
     /// - Returns: A view with the dithering overlay applied
     func ditheringOverlay(intensity: Double = 0.3, animated: Bool = false) -> some View {

@@ -31,7 +31,10 @@ struct QuestionView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, Spacing.questionTopPadding)
         .padding(.horizontal, Spacing.screenPadding)
+        // Exit effect: afterimage ghost when transitioning out
         .afterimage(isActive: isExiting)
+        // Chromatic aberration flash during exit
+        .chromaticAberration(isActive: isExiting, offset: 4)
     }
 }
 
@@ -55,28 +58,121 @@ struct QuestionView: View {
     .background(Color.dpBackground)
 }
 
-#Preview("Question - Afterimage") {
-    QuestionViewAfterimagePreview()
+#Preview("Question - Convergence Entrance") {
+    QuestionConvergencePreview()
 }
 
-/// Helper view for interactive afterimage preview
-private struct QuestionViewAfterimagePreview: View {
-    @State private var isExiting = false
+#Preview("Question - Full Transition") {
+    QuestionFullTransitionPreview()
+}
+
+/// Helper view for testing the convergence entrance effect
+private struct QuestionConvergencePreview: View {
+    @State private var showQuestion = false
 
     var body: some View {
         VStack(spacing: 40) {
-            QuestionView(
-                text: "What is the dull and persistent dissatisfaction you've learned to live with?",
-                isExiting: isExiting
-            )
+            Text("Tap to trigger entrance animation")
+                .font(.caption)
+                .foregroundColor(.dpSecondaryText)
+
+            if showQuestion {
+                QuestionView(
+                    text: "What is the dull and persistent dissatisfaction you've learned to live with?"
+                )
+            }
 
             Spacer()
 
-            Button(isExiting ? "Reset" : "Trigger Exit") {
-                isExiting.toggle()
+            Button(showQuestion ? "Hide & Reset" : "Show Question") {
+                if showQuestion {
+                    showQuestion = false
+                } else {
+                    showQuestion = true
+                }
             }
-            .padding()
+            .font(.system(size: 16, weight: .medium))
+            .foregroundColor(.dpBackground)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 12)
+            .background(Color.dpPrimaryText)
+            .cornerRadius(8)
+            .padding(.bottom, 40)
         }
         .background(Color.dpBackground)
+    }
+}
+
+/// Helper view for testing full question transitions (entrance + exit)
+private struct QuestionFullTransitionPreview: View {
+    @State private var isExiting = false
+    @State private var questionIndex = 0
+    @State private var showQuestion = true
+
+    private let questions = [
+        "What is the dull and persistent dissatisfaction you've learned to live with?",
+        "What truth have you been avoiding?",
+        "What would you do if you knew you could not fail?"
+    ]
+
+    var body: some View {
+        VStack(spacing: 40) {
+            Text("Question \(questionIndex + 1) of \(questions.count)")
+                .font(.caption)
+                .foregroundColor(.dpSecondaryText)
+                .padding(.top, 20)
+
+            if showQuestion {
+                QuestionView(
+                    text: questions[questionIndex],
+                    isExiting: isExiting
+                )
+                .id(questionIndex)
+            }
+
+            Spacer()
+
+            HStack(spacing: 16) {
+                Button("Exit Only") {
+                    triggerExit()
+                }
+                .disabled(isExiting)
+
+                Button("Next Question") {
+                    cycleToNextQuestion()
+                }
+                .disabled(isExiting)
+            }
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.dpBackground)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
+            .background(Color.dpPrimaryText)
+            .cornerRadius(8)
+            .padding(.bottom, 40)
+        }
+        .background(Color.dpBackground)
+    }
+
+    private func triggerExit() {
+        isExiting = true
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            isExiting = false
+        }
+    }
+
+    private func cycleToNextQuestion() {
+        isExiting = true
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            showQuestion = false
+            questionIndex = (questionIndex + 1) % questions.count
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                isExiting = false
+                showQuestion = true
+            }
+        }
     }
 }
