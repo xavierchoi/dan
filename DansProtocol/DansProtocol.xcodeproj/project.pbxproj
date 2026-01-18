@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -123,7 +123,7 @@
 		665B5CFABBA8ABFFE54D399C /* VariableFontCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableFontCache.swift; sourceTree = "<group>"; };
 		6A3DA8EF3FE76BD91CA012D0 /* QuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionView.swift; sourceTree = "<group>"; };
 		6E2AD7E023FF2BEEB14F4CE6 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
-		6E738F80E5015F15B8C6D9AA /* DansProtocolUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DansProtocolUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6E738F80E5015F15B8C6D9AA /* DansProtocolUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DansProtocolUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		79F4317C44D667E669B517C0 /* DansProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DansProtocolTests.swift; sourceTree = "<group>"; };
 		872C7A9216FE03AB95BAE3E9 /* EmphasisParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmphasisParserTests.swift; sourceTree = "<group>"; };
 		881D4964554F4310B6B8E962 /* PressureTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressureTransition.swift; sourceTree = "<group>"; };
@@ -134,7 +134,7 @@
 		986254C95258513968599755 /* DansProtocolUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DansProtocolUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		9C54EAC7AF7A7EC35028E980 /* EdgeGlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeGlow.swift; sourceTree = "<group>"; };
 		A39D9D804DAB35928A71B14F /* InterruptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterruptView.swift; sourceTree = "<group>"; };
-		A4CB8EEA1708BE058AF57392 /* DansProtocol.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DansProtocol.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A4CB8EEA1708BE058AF57392 /* Dan's Protocol.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Dan's Protocol.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9D692E3653CE437E291AE63 /* DansProtocol.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DansProtocol.entitlements; sourceTree = "<group>"; };
 		ABF63CDBA9C3EF1FAC5F6653 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 		B1CB4AE701231165552C5F4C /* ReadyStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadyStepView.swift; sourceTree = "<group>"; };
@@ -151,7 +151,7 @@
 		D1154D225EE8AEBCFB62D38C /* NotificationPermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPermissionView.swift; sourceTree = "<group>"; };
 		D11A23229A3E5CD6F76D4050 /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		D1DC5C7A1FA8AEA988C35D91 /* NotoSerifKR-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSerifKR-VariableFont_wght.ttf"; sourceTree = "<group>"; };
-		DDD26459931BB7B7E92DEA5A /* DansProtocolTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DansProtocolTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDD26459931BB7B7E92DEA5A /* DansProtocolTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DansProtocolTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0FF0E241D31D5B34C393591 /* SynthesisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynthesisView.swift; sourceTree = "<group>"; };
 		E9545783E5954BA95A9341E6 /* ProtocolSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolSession.swift; sourceTree = "<group>"; };
 		EA5DA4F87A675E4974F57F7C /* Question.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Question.swift; sourceTree = "<group>"; };
@@ -337,7 +337,7 @@
 		C9283BDBFC12E317357B15C5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A4CB8EEA1708BE058AF57392 /* DansProtocol.app */,
+				A4CB8EEA1708BE058AF57392 /* Dan's Protocol.app */,
 				DDD26459931BB7B7E92DEA5A /* DansProtocolTests.xctest */,
 				6E738F80E5015F15B8C6D9AA /* DansProtocolUITests.xctest */,
 			);
@@ -451,7 +451,7 @@
 			packageProductDependencies = (
 			);
 			productName = DansProtocol;
-			productReference = A4CB8EEA1708BE058AF57392 /* DansProtocol.app */;
+			productReference = A4CB8EEA1708BE058AF57392 /* Dan's Protocol.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -461,7 +461,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					6F920FD1C69F645F3CB44E85 = {
 						DevelopmentTeam = "";
@@ -471,7 +471,6 @@
 						TestTargetID = B830AE3B30E0FCCDA567F645;
 					};
 					B830AE3B30E0FCCDA567F645 = {
-						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -486,7 +485,6 @@
 			);
 			mainGroup = F902808518B926E8EFA6A4CE;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -618,8 +616,10 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2953677R8V;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DansProtocol/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -643,6 +643,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -677,6 +678,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -697,6 +699,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.9;
@@ -742,6 +745,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -776,6 +780,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -789,6 +794,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.9;
@@ -805,8 +811,10 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2953677R8V;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DansProtocol/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

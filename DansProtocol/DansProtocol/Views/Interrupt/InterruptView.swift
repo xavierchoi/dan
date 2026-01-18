@@ -9,6 +9,7 @@ struct InterruptView: View {
     let questionId: String
     var questionType: QuestionService.QuestionType = .interrupt
     var onDismiss: (() -> Void)?
+    var onSkip: ((String) -> Void)?  // Called with questionId when user skips
     @State private var response: String = ""
 
     /// Controls the chromatic aberration glitch effect on appear
@@ -79,9 +80,18 @@ struct InterruptView: View {
         onDismiss?()
     }
 
-    /// Handle skip button with haptic feedback
+    /// Handle skip button with haptic feedback and snooze logic
     private func handleSkip() {
         HapticEngine.shared.buttonTap()
+
+        // For interrupt questions, use snooze logic (which handles dismiss)
+        if questionType == .interrupt, let onSkip = onSkip {
+            dismiss()
+            onSkip(questionId)
+            return
+        }
+
+        // For other question types (contemplation), just dismiss
         dismissView()
     }
 
@@ -91,13 +101,34 @@ struct InterruptView: View {
 
         HapticEngine.shared.buttonTap()
 
-        let entry = JournalEntry(
-            part: 2,
-            questionKey: question.id,
-            response: response
+        if let existingEntry = session.entries.first(where: { $0.questionKey == question.id }) {
+            existingEntry.response = response
+        } else {
+            let entry = JournalEntry(
+                part: 2,
+                questionKey: question.id,
+                response: response
+            )
+            entry.session = session
+            modelContext.insert(entry)
+        }
+
+        PendingInterruptStore.remove(question.id, sessionId: session.id)
+
+        // Clear snooze state and cancel pending snooze reminders for this question
+        if questionType == .interrupt {
+            SnoozeStore.resetSnooze(for: question.id, sessionId: session.id)
+            NotificationService.shared.cancelSnoozeReminders(for: question.id)
+        }
+
+        NotificationCenter.default.post(
+            name: .didAnswerInterrupt,
+            object: nil,
+            userInfo: [
+                "questionId": question.id,
+                "sessionId": session.id.uuidString
+            ]
         )
-        entry.session = session
-        modelContext.insert(entry)
 
         dismissView()
     }

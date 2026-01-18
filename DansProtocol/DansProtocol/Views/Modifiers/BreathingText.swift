@@ -1,51 +1,61 @@
 import SwiftUI
 import UIKit
-import CoreText
 
-/// A ViewModifier that creates a subtle "breathing" effect by slowly oscillating
-/// font weight between 350 and 450 over an 8-second cycle.
+/// A ViewModifier that creates a dramatic "breathing" effect by oscillating
+/// font weight between Light (300) and Bold (700) over a 5-second cycle.
 ///
-/// The effect is intentionally subtle - users should barely notice it,
-/// but it gives text a sense of being "alive".
+/// Inspired by kinetic typography in film title sequences (Se7en, etc.)
+/// The effect should be VISIBLE and FELT - text that feels alive and watching.
 ///
-/// Only works with variable fonts (PlayfairDisplay, NotoSerifKR).
+/// Only works with variable fonts (Playfair Display, Noto Serif KR).
 /// System fonts are not supported.
 ///
 /// Usage:
 /// ```
 /// Text("Question text")
-///     .breathingText(fontName: "PlayfairDisplay-Regular", fontSize: 28)
+///     .breathingText(fontName: "Playfair Display", fontSize: 28)
 /// ```
 struct BreathingText: ViewModifier {
-    @State private var phase: Double = 0
     @State private var isActive: Bool = false
 
     let fontName: String
     let fontSize: CGFloat
     let duration: Double
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    /// Timer fires every 100ms (10 updates per second) for smooth animation with low CPU overhead
-    /// Only runs when view is visible (controlled by onAppear/onDisappear)
-    private let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
+    /// Animation update interval (~10fps) - TimelineView only updates when view is visible
+    private static let animationInterval: Double = 0.1
 
-    init(fontName: String, fontSize: CGFloat, duration: Double = 8.0) {
+    // MARK: - Weight Range Constants (Dramatic, visible range)
+
+    /// Minimum weight: Light (300) - creates contrast and "exhale" feeling
+    private static let minWeight: CGFloat = 300
+
+    /// Maximum weight: Bold (700) - creates presence and "inhale" feeling
+    private static let maxWeight: CGFloat = 700
+
+    init(fontName: String, fontSize: CGFloat, duration: Double = 5.0) {
         self.fontName = fontName
         self.fontSize = fontSize
         self.duration = duration
     }
 
-    /// Calculate current weight: oscillates between 350 and 450
-    /// Formula: 400 + sin(phase) * 50 where phase is 0 to 2*pi
-    private var currentWeight: CGFloat {
-        400 + sin(phase * 2 * .pi) * 50
+    // MARK: - Animation Value Calculation
+
+    /// Calculate weight for a given phase: oscillates between 300 and 700
+    /// Formula: 500 + sin(phase * 2 * pi) * 200
+    private func weight(for phase: Double) -> CGFloat {
+        let centerWeight = (Self.minWeight + Self.maxWeight) / 2  // 500
+        let amplitude = (Self.maxWeight - Self.minWeight) / 2      // 200
+        return centerWeight + sin(phase * 2 * .pi) * amplitude
     }
 
-    /// Create font with current interpolated weight
-    private var currentFont: Font {
-        guard let uiFont = Self.createVariableFont(
-            name: fontName,
+    /// Create font with specified weight
+    private func font(for weight: CGFloat) -> Font {
+        guard let uiFont = VariableFontCache.shared.font(
+            family: fontName,
             size: fontSize,
-            weight: currentWeight
+            weight: weight
         ) else {
             // Fallback to static font if variable font creation fails
             return Font.custom(fontName, size: fontSize)
@@ -54,63 +64,43 @@ struct BreathingText: ViewModifier {
     }
 
     func body(content: Content) -> some View {
-        content
-            .font(currentFont)
-            .onAppear { isActive = true }
-            .onDisappear { isActive = false }
-            .onReceive(timer) { _ in
-                // Only animate when view is visible
-                guard isActive else { return }
-                // Advance phase by fraction of cycle
-                phase += 0.1 / duration
-                // Reset when cycle completes
-                if phase >= 1 {
-                    phase = 0
-                }
-            }
+        // TimelineView automatically pauses when view is not visible (battery efficient)
+        // No timer accumulation issues - each update is based on absolute time
+        TimelineView(.animation(minimumInterval: Self.animationInterval, paused: !isActive || reduceMotion)) { timeline in
+            let elapsed = timeline.date.timeIntervalSinceReferenceDate
+            let phase = elapsed.truncatingRemainder(dividingBy: duration) / duration
+            let currentWeight = weight(for: phase)
+
+            content
+                .font(font(for: currentWeight))
+        }
+        .onAppear { isActive = !reduceMotion }
+        .onDisappear { isActive = false }
     }
 
-    /// Creates a UIFont with a specific weight value for variable fonts
-    /// - Parameters:
-    ///   - name: The font name (e.g., "PlayfairDisplay-Regular")
-    ///   - size: The font size in points
-    ///   - weight: The weight value (350-450 for this animation)
-    /// - Returns: A UIFont configured with the specified weight, or nil if creation fails
-    private static func createVariableFont(name: String, size: CGFloat, weight: CGFloat) -> UIFont? {
-        let descriptor = UIFontDescriptor(fontAttributes: [
-            .name: name
-        ])
-
-        // Use Core Text variation attribute to set the weight axis
-        // "wght" is the standard axis tag for font weight
-        let variationDescriptor = descriptor.addingAttributes([
-            UIFontDescriptor.AttributeName(rawValue: kCTFontVariationAttribute as String): [
-                "wght": weight
-            ]
-        ])
-
-        return UIFont(descriptor: variationDescriptor, size: size)
-    }
 }
 
 // MARK: - Convenience Extension
 
 extension View {
-    /// Applies a subtle breathing animation to text, oscillating font weight
-    /// between 350 and 450 over 8 seconds.
+    /// Applies a dramatic breathing animation to text, oscillating font weight
+    /// between Light (300) and Bold (700) over 5 seconds.
     ///
-    /// Only works with variable fonts (PlayfairDisplay, NotoSerifKR).
+    /// Inspired by kinetic typography in film title sequences.
+    /// The effect should be VISIBLE and FELT - text that feels alive.
+    ///
+    /// Only works with variable fonts (Playfair Display, Noto Serif KR).
     /// Do not combine with `.font()` modifier - this modifier sets the font.
     ///
     /// - Parameters:
-    ///   - fontName: The variable font name (default: "PlayfairDisplay-Regular")
+    ///   - fontName: The variable font family name (default: "Playfair Display")
     ///   - fontSize: The font size in points (default: 28)
-    ///   - duration: The animation cycle duration in seconds (default: 8.0)
+    ///   - duration: The animation cycle duration in seconds (default: 5.0)
     /// - Returns: A view with breathing text animation applied
     func breathingText(
-        fontName: String = "PlayfairDisplay-Regular",
+        fontName: String = FontFamily.playfairDisplay,
         fontSize: CGFloat = 28,
-        duration: Double = 8.0
+        duration: Double = 5.0
     ) -> some View {
         modifier(BreathingText(
             fontName: fontName,
@@ -124,14 +114,14 @@ extension View {
     /// - Parameters:
     ///   - language: The language code ("en" for English, "ko" for Korean)
     ///   - fontSize: The font size in points (default: 28)
-    ///   - duration: The animation cycle duration in seconds (default: 8.0)
+    ///   - duration: The animation cycle duration in seconds (default: 5.0)
     /// - Returns: A view with breathing text animation applied
     func breathingText(
         for language: String,
         fontSize: CGFloat = 28,
-        duration: Double = 8.0
+        duration: Double = 5.0
     ) -> some View {
-        let fontName = language == "ko" ? "NotoSerifKR-Regular" : "PlayfairDisplay-Regular"
+        let fontName = language == "ko" ? FontFamily.notoSerifKR : FontFamily.playfairDisplay
         return modifier(BreathingText(
             fontName: fontName,
             fontSize: fontSize,
@@ -150,7 +140,7 @@ extension View {
             .padding()
 
         Text("Static comparison (no breathing)")
-            .font(.custom("PlayfairDisplay-Regular", size: 28))
+            .font(.custom("Playfair Display", size: 28))
             .foregroundColor(.gray)
             .padding()
     }

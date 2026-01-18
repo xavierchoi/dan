@@ -21,6 +21,9 @@ struct ShareImageGenerator {
 struct ShareCardView: View {
     let components: LifeGameComponents
     let language: String
+    private var titleFontName: String {
+        language == "ko" ? FontFamily.notoSerifKR : FontFamily.playfairDisplay
+    }
 
     var body: some View {
         ZStack {
@@ -28,7 +31,7 @@ struct ShareCardView: View {
 
             VStack(alignment: .leading, spacing: 48) {
                 Text(language == "ko" ? "나의 라이프 게임" : "My Life Game")
-                    .font(.custom("PlayfairDisplay-Regular", size: 48))
+                    .font(.custom(titleFontName, size: 48))
                     .foregroundColor(.white)
 
                 VStack(alignment: .leading, spacing: 32) {

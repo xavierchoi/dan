@@ -63,6 +63,7 @@ class SynthesisViewModel {
     init(session: ProtocolSession) {
         self.session = session
         self.questions = QuestionService.shared.questions(for: 3, type: .synthesis)
+        restoreProgress()
     }
 
     var currentQuestion: Question? {
@@ -97,14 +98,32 @@ class SynthesisViewModel {
             modelContext.insert(entry)
         }
 
-        currentResponse = ""
         currentQuestionIndex += 1
+        loadResponseForCurrentQuestion()
     }
 
     func goBack() {
         guard currentQuestionIndex > 0 else { return }
         currentQuestionIndex -= 1
         loadResponseForCurrentQuestion()
+    }
+
+    private func restoreProgress() {
+        guard !questions.isEmpty else { return }
+
+        if let firstUnansweredIndex = questions.firstIndex(where: { !isAnswered($0) }) {
+            currentQuestionIndex = firstUnansweredIndex
+        } else {
+            currentQuestionIndex = max(questions.count - 1, 0)
+        }
+        loadResponseForCurrentQuestion()
+    }
+
+    private func isAnswered(_ question: Question) -> Bool {
+        guard let entry = session.entries.first(where: { $0.questionKey == question.id }) else {
+            return false
+        }
+        return !entry.response.isEmpty
     }
 
     private func loadResponseForCurrentQuestion() {

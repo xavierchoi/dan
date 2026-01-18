@@ -32,6 +32,7 @@ struct MicroTremor: ViewModifier {
 
     /// Reference date for calculating time-based tremor
     @State private var startDate: Date = Date()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     init(intensity: Double, isActive: Bool = true) {
         self.intensity = intensity
@@ -39,7 +40,7 @@ struct MicroTremor: ViewModifier {
     }
 
     func body(content: Content) -> some View {
-        if isActive && intensity > 0 {
+        if isActive && intensity > 0 && !reduceMotion {
             TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { timeline in
                 let tremor = calculateTremor(at: timeline.date)
                 content

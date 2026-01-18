@@ -102,6 +102,7 @@ struct EdgeGlow: View {
 
     /// Current pulse phase for animation
     @State private var pulsePhase: Double = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // MARK: - Computed Properties
 
@@ -130,7 +131,7 @@ struct EdgeGlow: View {
 
     /// Pulse animation offset - always active with subtle breathing, intensifies with progress
     private var pulseOffset: Double {
-        guard pulsing else { return 0 }
+        guard pulsing, !reduceMotion else { return 0 }
 
         // Calculate pulse intensity: subtle at low progress, dramatic at high progress
         let intensity: Double
@@ -151,7 +152,7 @@ struct EdgeGlow: View {
 
     /// Current pulse frequency based on progress - always base frequency, accelerates above threshold
     private var pulseFrequency: Double {
-        guard pulsing else { return 0 }
+        guard pulsing, !reduceMotion else { return 0 }
 
         if clampedProgress > Self.pulseThreshold {
             // Above threshold: accelerating frequency
@@ -354,7 +355,7 @@ struct EdgeGlow: View {
     // MARK: - Pulse Animation
 
     private func startPulseAnimationIfNeeded() {
-        guard pulsing else { return }
+        guard pulsing, !reduceMotion else { return }
 
         // Always run pulse animation when pulsing is enabled
         // Frequency and amplitude are controlled by progress level
@@ -453,6 +454,7 @@ struct EdgeGlowModifier: ViewModifier {
     func body(content: Content) -> some View {
         content.overlay(alignment: overlayAlignment) {
             EdgeGlow(progress: progress, position: position, mode: mode, pulsing: pulsing)
+                .ignoresSafeArea()
         }
     }
 

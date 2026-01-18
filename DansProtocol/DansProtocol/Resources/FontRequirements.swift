@@ -5,12 +5,14 @@
 //
 // 1. Playfair Display (English questions)
 //    - Source: Google Fonts (https://fonts.google.com/specimen/Playfair+Display)
-//    - File needed: PlayfairDisplay-Regular.ttf
+//    - File needed: PlayfairDisplay-VariableFont_wght.ttf
+//    - Family name: "Playfair Display"
 //    - License: Open Font License
 //
 // 2. Noto Serif Korean (Korean questions)
 //    - Source: Google Fonts (https://fonts.google.com/noto/specimen/Noto+Serif+KR)
-//    - File needed: NotoSerifKR-Regular.otf
+//    - File needed: NotoSerifKR-VariableFont_wght.ttf
+//    - Family name: "Noto Serif KR"
 //    - License: Open Font License
 //
 // MARK: - Installation Steps
@@ -22,37 +24,19 @@
 //
 //    <key>UIAppFonts</key>
 //    <array>
-//        <string>PlayfairDisplay-Regular.ttf</string>
-//        <string>NotoSerifKR-Regular.otf</string>
+//        <string>PlayfairDisplay-VariableFont_wght.ttf</string>
+//        <string>NotoSerifKR-VariableFont_wght.ttf</string>
 //    </array>
 //
 // 5. Verify fonts are included in "Copy Bundle Resources" build phase
 //
 // MARK: - Fallback Behavior
 //
-// If custom fonts are not available, the app will use system serif fonts
-// via Font.dpQuestionFallback (.system(size: 28, weight: .regular, design: .serif))
+// If custom fonts are not available, the app will fall back to system fonts
+// through Font.custom/UIFont defaults.
 //
 // MARK: - Font Usage
 //
 // English questions: Font.dpQuestion or Font.dpQuestion(for: "en")
-// Korean questions: Font.dpQuestionKo or Font.dpQuestion(for: "ko")
+// Korean questions: Font.dpQuestion or Font.dpQuestion(for: "ko")
 // Adaptive sizing: Font.dpQuestionAdaptive(for: language, textLength: text.count)
-
-import UIKit
-
-/// Placeholder enum for font-related constants
-/// This will be expanded when actual fonts are added
-enum FontAssets {
-    static let playfairDisplayRegular = "PlayfairDisplay-Regular"
-    static let notoSerifKRRegular = "NotoSerifKR-Regular"
-
-    /// Check if custom fonts are available
-    static var isPlayfairAvailable: Bool {
-        UIFont(name: playfairDisplayRegular, size: 12) != nil
-    }
-
-    static var isNotoSerifKRAvailable: Bool {
-        UIFont(name: notoSerifKRRegular, size: 12) != nil
-    }
-}

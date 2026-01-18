@@ -22,6 +22,7 @@ import SwiftUI
 struct ChromaticAberration: ViewModifier {
     let isActive: Bool
     let targetOffset: CGFloat
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Duration for the split to expand
     private let splitDuration: Double = 0.05
@@ -34,6 +35,9 @@ struct ChromaticAberration: ViewModifier {
 
     /// Opacity of the color overlays
     @State private var overlayOpacity: Double = 0
+
+    /// Task for managing animation lifecycle
+    @State private var animationTask: Task<Void, Never>?
 
     /// Subtle red tint for left channel (desaturated for taste)
     private let redTint = Color(red: 1.0, green: 0.3, blue: 0.3)
@@ -68,23 +72,33 @@ struct ChromaticAberration: ViewModifier {
                     .blendMode(.plusLighter)
             }
             .onChange(of: isActive) { oldValue, newValue in
-                if newValue && !oldValue {
+                if newValue && !oldValue && !reduceMotion {
                     // Trigger the glitch effect
                     triggerGlitch()
                 }
+            }
+            .onDisappear {
+                animationTask?.cancel()
             }
     }
 
     /// Triggers the brief chromatic aberration glitch sequence
     private func triggerGlitch() {
-        // Phase 1: Quick split outward
-        withAnimation(.easeOut(duration: splitDuration)) {
-            currentOffset = targetOffset
-            overlayOpacity = maxOverlayOpacity
-        }
+        guard !reduceMotion else { return }
+        animationTask?.cancel()
 
-        // Phase 2: Quick converge back
-        DispatchQueue.main.asyncAfter(deadline: .now() + splitDuration) {
+        animationTask = Task { @MainActor in
+            // Phase 1: Quick split outward
+            withAnimation(.easeOut(duration: splitDuration)) {
+                currentOffset = targetOffset
+                overlayOpacity = maxOverlayOpacity
+            }
+
+            // Phase 2: Quick converge back
+            guard !Task.isCancelled else { return }
+            try? await Task.sleep(for: .seconds(splitDuration))
+
+            guard !Task.isCancelled else { return }
             withAnimation(.easeIn(duration: convergeDuration)) {
                 currentOffset = 0
                 overlayOpacity = 0
@@ -211,6 +225,7 @@ extension View {
 private struct ChromaticAberrationPreview: View {
     @State private var triggerEffect = false
     @State private var selectedOffset: CGFloat = 3
+    @State private var previewTask: Task<Void, Never>?
 
     var body: some View {
         VStack(spacing: 40) {
@@ -227,7 +242,7 @@ private struct ChromaticAberrationPreview: View {
                 .chromaticAberration(isActive: triggerEffect, offset: selectedOffset)
 
             Text("What truth have you been avoiding?")
-                .font(.custom("PlayfairDisplay-Regular", size: 22))
+                .font(.custom("Playfair Display", size: 22))
                 .foregroundColor(.dpPrimaryText)
                 .multilineTextAlignment(.center)
                 .chromaticAberration(isActive: triggerEffect, offset: selectedOffset)
@@ -246,11 +261,17 @@ private struct ChromaticAberrationPreview: View {
             }
 
             Button(action: {
+                previewTask?.cancel()
+
                 // Toggle to trigger the effect
                 triggerEffect = true
 
                 // Reset after effect completes so it can be triggered again
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                previewTask = Task { @MainActor in
+                    guard !Task.isCancelled else { return }
+                    try? await Task.sleep(for: .milliseconds(200))
+
+                    guard !Task.isCancelled else { return }
                     triggerEffect = false
                 }
             }) {

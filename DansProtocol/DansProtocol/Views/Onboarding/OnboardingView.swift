@@ -126,12 +126,12 @@ struct WelcomeStepView: View {
             Spacer()
 
             VStack(spacing: Spacing.sectionSpacing) {
-                Text("Dan's Protocol")
-                    .font(.dpQuestionLarge(for: language))
+                Text(OnboardingLabels.appTitle)
+                    .breathingText(for: language, fontSize: 32, duration: 6.0)
                     .foregroundColor(.dpPrimaryText)
                     .multilineTextAlignment(.center)
 
-                Text(language == "ko" ? "하루 만에 인생 전체를 바꾸세요." : "Fix your entire life in 1 day.")
+                Text(OnboardingLabels.tagline(for: language))
                     .font(.dpBody)
                     .foregroundColor(.dpSecondaryText)
                     .multilineTextAlignment(.center)
@@ -140,7 +140,7 @@ struct WelcomeStepView: View {
             Spacer()
 
             TextButton(
-                title: language == "ko" ? "시작하기 →" : "Begin →",
+                title: NavLabels.begin(for: language),
                 action: onContinue
             )
             .padding(.bottom, Spacing.sectionSpacing * 1.5)

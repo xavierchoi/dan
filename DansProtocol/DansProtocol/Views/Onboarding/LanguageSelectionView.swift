@@ -10,7 +10,7 @@ struct LanguageSelectionView: View {
             Spacer()
 
             VStack(spacing: Spacing.sectionSpacing * 1.5) {
-                Text(selectedLanguage == "ko" ? "언어를 선택하세요" : "Choose your language")
+                Text(OnboardingLabels.chooseLanguage(for: selectedLanguage))
                     .font(.dpQuestionLarge(for: selectedLanguage))
                     .foregroundColor(.dpPrimaryText)
                     .multilineTextAlignment(.center)
@@ -41,9 +41,9 @@ struct LanguageSelectionView: View {
             Spacer()
 
             HStack {
-                TextButton(title: selectedLanguage == "ko" ? "← 이전" : "← Back", action: onBack)
+                TextButton(title: NavLabels.back(for: selectedLanguage), action: onBack)
                 Spacer()
-                TextButton(title: selectedLanguage == "ko" ? "계속 →" : "Continue →", action: onContinue)
+                TextButton(title: NavLabels.continueButton(for: selectedLanguage), action: onContinue)
             }
             .padding(.bottom, Spacing.sectionSpacing * 1.5)
         }

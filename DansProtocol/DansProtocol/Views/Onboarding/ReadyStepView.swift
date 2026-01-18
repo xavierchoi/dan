@@ -10,48 +10,39 @@ struct ReadyStepView: View {
             Spacer()
 
             VStack(spacing: Spacing.sectionSpacing * 1.5) {
-                Text(language == "ko" ? "\u{C900}\u{BE44}\u{B418}\u{C5C8}\u{C2B5}\u{B2C8}\u{B2E4}" : "You're ready")
+                Text(OnboardingLabels.youAreReady(for: language))
                     .font(.dpQuestionLarge(for: language))
                     .foregroundColor(.dpPrimaryText)
                     .multilineTextAlignment(.center)
 
                 VStack(spacing: Spacing.elementSpacing) {
                     ReadyItem(
-                        title: language == "ko" ? "Part 1: \u{C131}\u{CC30}" : "Part 1: Reflection",
-                        description: language == "ko"
-                            ? "\u{C544}\u{CE68}\u{C5D0} 15\u{AC1C}\u{C758} \u{C9C8}\u{BB38}\u{C5D0} \u{B2F5}\u{D558}\u{BA70} \u{C0B6}\u{C744} \u{B3CC}\u{C544}\u{BD05}\u{B2C8}\u{B2E4}"
-                            : "Answer 15 questions in the morning to reflect on your life"
+                        title: OnboardingLabels.part1Title(for: language),
+                        description: OnboardingLabels.part1Description(for: language)
                     )
 
                     ReadyItem(
-                        title: language == "ko" ? "Part 2: \u{C911}\u{B2E8}" : "Part 2: Interruption",
-                        description: language == "ko"
-                            ? "\u{D558}\u{B8E8} \u{C885}\u{C77C} \u{BB34}\u{C791}\u{C704} \u{C54C}\u{B9BC}\u{C744} \u{BC1B}\u{C544} \u{C21C}\u{AC04}\u{C744} \u{AE30}\u{B85D}\u{D569}\u{B2C8}\u{B2E4}"
-                            : "Receive random notifications throughout the day to capture moments"
+                        title: OnboardingLabels.part2Title(for: language),
+                        description: OnboardingLabels.notificationExplanation(for: language)
                     )
 
                     ReadyItem(
-                        title: language == "ko" ? "Part 3: \u{D1B5}\u{D569}" : "Part 3: Integration",
-                        description: language == "ko"
-                            ? "\u{BC24}\u{C5D0} \u{D558}\u{B8E8}\u{B97C} \u{C815}\u{B9AC}\u{D558}\u{ACE0} \u{C0B6}\u{C758} \u{AC8C}\u{C784} \u{C694}\u{C18C}\u{B97C} \u{C815}\u{C758}\u{D569}\u{B2C8}\u{B2E4}"
-                            : "Synthesize your day in the evening and define your Life Game components"
+                        title: OnboardingLabels.part3Title(for: language),
+                        description: OnboardingLabels.part3Description(for: language)
                     )
                 }
-
-                // Anti-Vision concept primer
-                AntiVisionPrimer(language: language)
             }
 
             Spacer()
 
             VStack(spacing: Spacing.elementSpacing) {
                 TextButton(
-                    title: language == "ko" ? "Part 1 \u{C2DC}\u{C791} \u{2192}" : "Start Part 1 \u{2192}",
+                    title: OnboardingLabels.startPart1(for: language),
                     action: onStart
                 )
 
                 TextButton(
-                    title: language == "ko" ? "\u{2190} 뒤로" : "\u{2190} Back",
+                    title: NavLabels.back(for: language),
                     action: onBack
                 )
             }
@@ -59,30 +50,6 @@ struct ReadyStepView: View {
         }
         .padding(.horizontal, Spacing.screenPadding)
         .background(Color.dpBackground)
-    }
-}
-
-// MARK: - AntiVisionPrimer
-
-/// Subtle introduction to the Anti-Vision concept before Part 3
-struct AntiVisionPrimer: View {
-    let language: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.lineSpacing) {
-            Text(language == "ko" ? "안티-비전" : "Anti-Vision")
-                .font(.dpCaption)
-                .foregroundColor(.dpSecondaryText)
-                .italic()
-
-            Text(language == "ko"
-                ? "당신이 거부하는 미래"
-                : "The future you refuse to live.")
-                .font(.dpCaption)
-                .foregroundColor(.dpSecondaryText.opacity(0.7))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, Spacing.elementSpacing)
     }
 }
 

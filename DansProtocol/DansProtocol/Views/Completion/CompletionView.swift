@@ -12,9 +12,6 @@ struct CompletionView: View {
     /// Edge glow progress - starts full, dims to 0.3 for catharsis effect
     @State private var edgeGlowProgress: Double = 1.0
 
-    /// Controls the breathing animation on the title
-    @State private var isBreathing = false
-
     /// Opacity values for cascading component fade-in (6 components)
     @State private var componentOpacities: [Double] = Array(repeating: 0.0, count: 6)
 
@@ -42,13 +39,8 @@ struct CompletionView: View {
                 VStack(alignment: .leading, spacing: Spacing.sectionSpacing) {
                     // MARK: - Title with breathing animation
                     Text(session.language == "ko" ? "당신의 라이프 게임" : "Your Life Game")
-                        .font(.dpQuestionLarge(for: session.language))
+                        .breathingTypography(for: session.language, fontSize: 32, includeScale: true)
                         .foregroundColor(.dpPrimaryText)
-                        .scaleEffect(isBreathing ? 1.02 : 1.0)
-                        .animation(
-                            .easeInOut(duration: 3.0).repeatForever(autoreverses: true),
-                            value: isBreathing
-                        )
                         .padding(.top, Spacing.questionTopPadding)
 
                     // MARK: - 6 Components with cascading fade-in
@@ -83,9 +75,6 @@ struct CompletionView: View {
         .onAppear {
             // Haptic feedback - heartbeat pattern for completion
             HapticEngine.shared.completionHeartbeat()
-
-            // Start breathing animation on title
-            isBreathing = true
 
             // Slowly dim the edge glow for catharsis effect (release, calm after storm)
             withAnimation(.easeOut(duration: 4.0)) {

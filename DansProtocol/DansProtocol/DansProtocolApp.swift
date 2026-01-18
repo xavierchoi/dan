@@ -115,7 +115,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         // wght axis tag as FourCC number: 0x77676874 = 2003265652
         let wghtAxisTag: Int = 0x77676874  // 'wght' as FourCC
 
-        // Test different weights with STRING key "wght"
+         // Test different weights with STRING key "wght"
         log += "Testing with STRING key 'wght':\n"
         for weight in [300, 700] as [CGFloat] {
             let variationDescriptor = testDescriptor.addingAttributes([

@@ -1,27 +1,37 @@
 import SwiftUI
+import UIKit
+
+enum FontFamily {
+    static let playfairDisplay = "Playfair Display"
+    static let notoSerifKR = "Noto Serif KR"
+}
 
 extension Font {
-    // Variable Font Names
-    private static let playfairDisplay = "PlayfairDisplay-Regular"
-    private static let notoSerifKR = "NotoSerifKR-Regular"
+
+    private static func variableFont(familyName: String, size: CGFloat) -> Font {
+        let descriptor = UIFontDescriptor(fontAttributes: [
+            .family: familyName
+        ])
+        return Font(UIFont(descriptor: descriptor, size: size))
+    }
 
     // Questions - Serif for philosophical weight
     // English: Playfair Display, Korean: Noto Serif Korean
     static func dpQuestion(for language: String) -> Font {
         language == "ko"
-            ? Font.custom(notoSerifKR, size: 28)
-            : Font.custom(playfairDisplay, size: 28)
+            ? variableFont(familyName: FontFamily.notoSerifKR, size: 28)
+            : variableFont(familyName: FontFamily.playfairDisplay, size: 28)
     }
 
     static func dpQuestionLarge(for language: String) -> Font {
         language == "ko"
-            ? Font.custom(notoSerifKR, size: 32)
-            : Font.custom(playfairDisplay, size: 32)
+            ? variableFont(familyName: FontFamily.notoSerifKR, size: 32)
+            : variableFont(familyName: FontFamily.playfairDisplay, size: 32)
     }
 
     // Static variants for non-language-specific contexts (defaults to English)
-    static let dpQuestion = Font.custom(playfairDisplay, size: 28)
-    static let dpQuestionLarge = Font.custom(playfairDisplay, size: 32)
+    static let dpQuestion = variableFont(familyName: FontFamily.playfairDisplay, size: 28)
+    static let dpQuestionLarge = variableFont(familyName: FontFamily.playfairDisplay, size: 32)
 
     // UI Elements - System font for accessibility
     static let dpBody = Font.body
@@ -32,7 +42,7 @@ extension Font {
     static func dpQuestionAdaptive(for language: String, textLength: Int) -> Font {
         let baseSize: CGFloat = textLength > 150 ? 24 : (textLength > 100 ? 26 : 28)
         return language == "ko"
-            ? Font.custom(notoSerifKR, size: baseSize)
-            : Font.custom(playfairDisplay, size: baseSize)
+            ? variableFont(familyName: FontFamily.notoSerifKR, size: baseSize)
+            : variableFont(familyName: FontFamily.playfairDisplay, size: baseSize)
     }
 }

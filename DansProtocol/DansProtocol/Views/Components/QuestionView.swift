@@ -20,11 +20,13 @@ struct QuestionView: View {
     }
 
     var body: some View {
+        let parsed = EmphasisParser.parse(text, language: language)
         WeightCascadeText(
-            text: text,
+            text: parsed.plainText,
             language: language,
             fontSize: adaptiveFontSize,
-            breatheAfterCascade: true
+            breatheAfterCascade: true,
+            emphasisRanges: parsed.ranges.map(\.range)
         )
         .foregroundColor(.dpPrimaryText)
         .lineSpacing(Spacing.lineSpacing)

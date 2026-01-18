@@ -11,7 +11,7 @@ struct WakeTimeSelectionView: View {
             Spacer()
 
             VStack(spacing: Spacing.sectionSpacing * 1.5) {
-                Text(language == "ko" ? "몇 시에 일어나시나요?" : "What time will you wake up?")
+                Text(OnboardingLabels.whatTimeWakeUp(for: language))
                     .font(.dpQuestionLarge(for: language))
                     .foregroundColor(.dpPrimaryText)
                     .multilineTextAlignment(.center)
@@ -29,9 +29,9 @@ struct WakeTimeSelectionView: View {
             Spacer()
 
             HStack {
-                TextButton(title: language == "ko" ? "← 이전" : "← Back", action: onBack)
+                TextButton(title: NavLabels.back(for: language), action: onBack)
                 Spacer()
-                TextButton(title: language == "ko" ? "계속 →" : "Continue →", action: onContinue)
+                TextButton(title: NavLabels.continueButton(for: language), action: onContinue)
             }
             .padding(.bottom, Spacing.sectionSpacing * 1.5)
         }

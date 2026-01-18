@@ -5,17 +5,30 @@ class QuestionService {
 
     private var questionsData: QuestionsData?
 
+    /// Error message if Questions.json failed to load
+    private(set) var loadError: String?
+
+    /// Returns true if Questions.json loaded successfully
+    var isLoaded: Bool { questionsData != nil }
+
     private init() {
         loadQuestions()
     }
 
     private func loadQuestions() {
-        guard let url = Bundle.main.url(forResource: "Questions", withExtension: "json"),
-              let data = try? Data(contentsOf: url) else {
+        guard let url = Bundle.main.url(forResource: "Questions", withExtension: "json") else {
+            loadError = "Questions.json file not found in app bundle"
+            assertionFailure("Missing Questions.json in bundle")
             return
         }
 
-        questionsData = try? JSONDecoder().decode(QuestionsData.self, from: data)
+        do {
+            let data = try Data(contentsOf: url)
+            questionsData = try JSONDecoder().decode(QuestionsData.self, from: data)
+        } catch {
+            loadError = "Failed to parse Questions.json: \(error.localizedDescription)"
+            assertionFailure("Failed to load Questions.json: \(error)")
+        }
     }
 
     func questions(for part: Int, type: QuestionType = .main) -> [Question] {

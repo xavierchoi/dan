@@ -15,7 +15,7 @@ class NotificationService {
         }
     }
 
-    func scheduleInterrupts(wakeUpTime: Date, language: String) {
+    func scheduleInterrupts(sessionId: UUID, wakeUpTime: Date, language: String) {
         // Clear any existing notifications before scheduling new ones
         cancelAll()
 
@@ -33,6 +33,7 @@ class NotificationService {
 
             scheduleNotification(
                 id: question.id,
+                sessionId: sessionId,
                 title: NotificationLabels.timeToReflect(for: language),
                 body: question.text(for: language),
                 date: triggerDate
@@ -40,12 +41,15 @@ class NotificationService {
         }
     }
 
-    private func scheduleNotification(id: String, title: String, body: String, date: Date) {
+    private func scheduleNotification(id: String, sessionId: UUID, title: String, body: String, date: Date) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         content.sound = .default
-        content.userInfo = ["questionId": id]
+        content.userInfo = [
+            "questionId": id,
+            "sessionId": sessionId.uuidString
+        ]
 
         let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date)
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
@@ -56,6 +60,56 @@ class NotificationService {
 
     func cancelAll() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+    }
+
+    /// Schedule a snooze reminder for a skipped interrupt question
+    /// - Parameters:
+    ///   - questionId: The question ID to remind about
+    ///   - sessionId: Current session ID
+    ///   - language: Language for notification text
+    ///   - delayMinutes: Delay before reminder (default: 30 minutes)
+    func scheduleSnoozeReminder(
+        questionId: String,
+        sessionId: UUID,
+        language: String,
+        delayMinutes: Int = SnoozeStore.snoozeDelayMinutes
+    ) {
+        guard let question = QuestionService.shared.questions(for: 2, type: .interrupt)
+            .first(where: { $0.id == questionId }) else { return }
+
+        let triggerDate = Date().addingTimeInterval(TimeInterval(delayMinutes * 60))
+
+        let content = UNMutableNotificationContent()
+        content.title = NotificationLabels.reminderTitle(for: language)
+        content.body = question.text(for: language)
+        content.sound = .default
+        content.userInfo = [
+            "questionId": questionId,
+            "sessionId": sessionId.uuidString,
+            "isSnoozeReminder": true
+        ]
+
+        let components = Calendar.current.dateComponents(
+            [.year, .month, .day, .hour, .minute],
+            from: triggerDate
+        )
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+
+        // Use unique ID for snooze reminders to not conflict with original schedule
+        let reminderId = "snooze_\(questionId)_\(Date().timeIntervalSince1970)"
+        let request = UNNotificationRequest(identifier: reminderId, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request)
+    }
+
+    /// Cancel snooze reminders for a specific question
+    func cancelSnoozeReminders(for questionId: String) {
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            let snoozeIds = requests
+                .filter { $0.identifier.hasPrefix("snooze_\(questionId)_") }
+                .map { $0.identifier }
+
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: snoozeIds)
+        }
     }
 
     func scheduleEveningReminder(wakeUpTime: Date, language: String) {

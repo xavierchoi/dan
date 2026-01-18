@@ -8,6 +8,7 @@ struct JournalingView: View {
     @State private var isQuestionExiting: Bool = false
     @State private var isTransitioning: Bool = false
     @State private var displayedQuestionText: String = ""
+    @FocusState private var isTextFieldFocused: Bool
     var onComplete: () -> Void
 
     /// Duration for the afterimage effect to complete before showing new question
@@ -188,9 +189,13 @@ struct JournalingView: View {
         buttonAreaHeight: CGFloat
     ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Question area spacer
+            // Question area spacer - tappable to dismiss keyboard
             Color.clear
                 .frame(height: questionAreaHeight)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    isTextFieldFocused = false
+                }
 
             // MARK: Input Area with visual separator
             VStack(spacing: 0) {
@@ -205,7 +210,8 @@ struct JournalingView: View {
 
                 MinimalTextField(
                     placeholder: viewModel.placeholder,
-                    text: $viewModel.currentResponse
+                    text: $viewModel.currentResponse,
+                    isFocused: $isTextFieldFocused
                 )
 
                 Spacer()
@@ -215,6 +221,20 @@ struct JournalingView: View {
             // Button area spacer
             Color.clear
                 .frame(height: buttonAreaHeight)
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+
+                Button(action: handleContinue) {
+                    Text(viewModel.isLastQuestion
+                         ? NavLabels.complete(for: viewModel.session.language)
+                         : NavLabels.continueButton(for: viewModel.session.language))
+                        .font(.dpButton)
+                        .foregroundColor(viewModel.canProceed ? .dpPrimaryText : .dpSecondaryText)
+                }
+                .disabled(!viewModel.canProceed)
+            }
         }
     }
 
