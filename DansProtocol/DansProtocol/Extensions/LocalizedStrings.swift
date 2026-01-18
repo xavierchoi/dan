@@ -172,6 +172,12 @@ enum Part2Labels {
             ? "이제 앱을 종료하고 일상으로 돌아가세요. 질문이 당신을 찾아갈 것입니다."
             : "You may now close the app and return to your life. The questions will find you."
     }
+
+    static func snoozeExhausted(for language: String) -> String {
+        language == "ko"
+            ? "알림이 비활성화되었습니다. 위 목록에서 직접 답변해주세요."
+            : "Notifications disabled. Please answer directly from the list above."
+    }
 }
 
 // MARK: - History

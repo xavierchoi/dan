@@ -43,6 +43,10 @@ struct Part2WaitingView: View {
         interruptQuestions.count - answeredCount
     }
 
+    private var hasExhaustedSnoozeQuestions: Bool {
+        !SnoozeStore.maxSnoozedQuestionIds(sessionId: session.id).isEmpty
+    }
+
     var body: some View {
         ZStack {
             Color.dpBackground.ignoresSafeArea()
@@ -66,6 +70,15 @@ struct Part2WaitingView: View {
                                 isAnswered: isAnswered(question)
                             )
                         }
+                    }
+
+                    // 스누즈 소진된 질문이 있을 때 안내 메시지 표시
+                    if hasExhaustedSnoozeQuestions {
+                        Text(Part2Labels.snoozeExhausted(for: session.language))
+                            .font(.dpCaption)
+                            .foregroundColor(.dpSecondaryText)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, Spacing.screenPadding)
                     }
 
                     if !allAnswered {
