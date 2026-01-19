@@ -2,17 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct OnboardingView: View {
-    // MARK: - FetchDescriptor for Query Optimization
-    /// Fetch only 1 session to check if history exists
-    /// This avoids loading all sessions just to check !sessions.isEmpty
-    static var anySessionDescriptor: FetchDescriptor<ProtocolSession> {
-        var descriptor = FetchDescriptor<ProtocolSession>()
-        descriptor.fetchLimit = 1
-        return descriptor
-    }
-
     @Environment(\.modelContext) private var modelContext
-    @Query(OnboardingView.anySessionDescriptor) private var sessions: [ProtocolSession]
+    @Query private var sessions: [ProtocolSession]
     @State private var viewModel = OnboardingViewModel()
     @State private var showingHistorySheet = false
     var onComplete: (ProtocolSession) -> Void
