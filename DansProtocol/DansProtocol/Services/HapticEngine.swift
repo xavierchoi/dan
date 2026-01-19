@@ -64,9 +64,12 @@ final class HapticEngine {
         notificationGenerator.prepare()
         notificationGenerator.notificationOccurred(.success)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
-            self?.notificationGenerator.prepare()
-            self?.notificationGenerator.notificationOccurred(.success)
+        Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 150_000_000)
+            await MainActor.run {
+                self?.notificationGenerator.prepare()
+                self?.notificationGenerator.notificationOccurred(.success)
+            }
         }
     }
 
@@ -75,14 +78,20 @@ final class HapticEngine {
         rigidImpact.prepare()
         rigidImpact.impactOccurred()
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
-            self?.rigidImpact.prepare()
-            self?.rigidImpact.impactOccurred()
+        Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 50_000_000)
+            await MainActor.run {
+                self?.rigidImpact.prepare()
+                self?.rigidImpact.impactOccurred()
+            }
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.10) { [weak self] in
-            self?.rigidImpact.prepare()
-            self?.rigidImpact.impactOccurred()
+        Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            await MainActor.run {
+                self?.rigidImpact.prepare()
+                self?.rigidImpact.impactOccurred()
+            }
         }
     }
 
@@ -98,20 +107,29 @@ final class HapticEngine {
         heavyImpact.prepare()
         heavyImpact.impactOccurred(intensity: 1.0)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
-            self?.heavyImpact.prepare()
-            self?.heavyImpact.impactOccurred(intensity: 0.7)
+        Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 150_000_000)
+            await MainActor.run {
+                self?.heavyImpact.prepare()
+                self?.heavyImpact.impactOccurred(intensity: 0.7)
+            }
         }
 
         // Pause, then second heartbeat: thump-thump
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            self?.heavyImpact.prepare()
-            self?.heavyImpact.impactOccurred(intensity: 1.0)
+        Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            await MainActor.run {
+                self?.heavyImpact.prepare()
+                self?.heavyImpact.impactOccurred(intensity: 1.0)
+            }
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) { [weak self] in
-            self?.heavyImpact.prepare()
-            self?.heavyImpact.impactOccurred(intensity: 0.7)
+        Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 650_000_000)
+            await MainActor.run {
+                self?.heavyImpact.prepare()
+                self?.heavyImpact.impactOccurred(intensity: 0.7)
+            }
         }
     }
 

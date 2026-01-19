@@ -168,7 +168,8 @@ private struct QuestionFullTransitionPreview: View {
     private func triggerExit() {
         isExiting = true
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 600_000_000)
             isExiting = false
         }
     }
@@ -176,14 +177,14 @@ private struct QuestionFullTransitionPreview: View {
     private func cycleToNextQuestion() {
         isExiting = true
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 500_000_000)
             showQuestion = false
             questionIndex = (questionIndex + 1) % questions.count
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                isExiting = false
-                showQuestion = true
-            }
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            isExiting = false
+            showQuestion = true
         }
     }
 }

@@ -115,8 +115,9 @@ struct CompletionView: View {
         isGeneratingImage = true
 
         // UIHostingController and drawHierarchy must run on main thread
-        // Use asyncAfter to allow ProgressView to render before blocking
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        // Use Task.sleep to allow ProgressView to render before blocking
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 100_000_000)
             let image = ShareImageGenerator.generate(components: components, language: session.language)
 
             isGeneratingImage = false

@@ -251,7 +251,8 @@ struct JournalingView: View {
         isQuestionExiting = true
 
         // After transition, update to previous question
-        DispatchQueue.main.asyncAfter(deadline: .now() + transitionDuration) {
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 600_000_000)
             viewModel.goBack()
             displayedQuestionText = viewModel.questionText
             isQuestionExiting = false
@@ -280,7 +281,8 @@ struct JournalingView: View {
         isQuestionExiting = true
 
         // After transition, update UI (save already completed)
-        DispatchQueue.main.asyncAfter(deadline: .now() + transitionDuration) {
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 600_000_000)
             if wasLastQuestion || viewModel.currentQuestion == nil {
                 onComplete()
             } else {
