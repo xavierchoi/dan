@@ -104,3 +104,6 @@ coverage/
 
 # ===== Worktrees (Development) =====
 .worktrees/
+
+# ===== Internal Documentation =====
+docs/
