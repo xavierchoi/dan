@@ -27,8 +27,15 @@ struct Part2WaitingView: View {
         QuestionService.shared.questions(for: 2, type: .contemplation)
     }
 
+    /// Dictionary cache for O(1) entry lookups by question key
+    /// Avoids O(n) iteration through entries array for each question check
+    private var entriesByQuestionKey: [String: JournalEntry] {
+        Dictionary(uniqueKeysWithValues: entries.map { ($0.questionKey, $0) })
+    }
+
     private func isAnswered(_ question: Question) -> Bool {
-        entries.contains { $0.questionKey == question.id && !$0.response.isEmpty }
+        guard let entry = entriesByQuestionKey[question.id] else { return false }
+        return !entry.response.isEmpty
     }
 
     private var answeredCount: Int {
