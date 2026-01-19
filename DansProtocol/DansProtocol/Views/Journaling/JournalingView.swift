@@ -252,7 +252,7 @@ struct JournalingView: View {
 
         // After transition, update to previous question
         Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 600_000_000)
+            try? await Task.sleep(nanoseconds: UInt64(transitionDuration * 1_000_000_000))
             viewModel.goBack()
             displayedQuestionText = viewModel.questionText
             isQuestionExiting = false
@@ -282,7 +282,7 @@ struct JournalingView: View {
 
         // After transition, update UI (save already completed)
         Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 600_000_000)
+            try? await Task.sleep(nanoseconds: UInt64(transitionDuration * 1_000_000_000))
             if wasLastQuestion || viewModel.currentQuestion == nil {
                 onComplete()
             } else {
