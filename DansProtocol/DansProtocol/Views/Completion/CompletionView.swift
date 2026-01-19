@@ -6,6 +6,8 @@ struct CompletionView: View {
 
     @State private var showingShareSheet = false
     @State private var shareImage: UIImage?
+    @State private var showingErrorAlert = false
+    @State private var isGeneratingImage = false
 
     // MARK: - Animation State
 
@@ -55,10 +57,16 @@ struct CompletionView: View {
                     Spacer(minLength: Spacing.sectionSpacing)
 
                     HStack {
-                        TextButton(
-                            title: session.language == "ko" ? "공유" : "Share",
-                            action: generateAndShare
-                        )
+                        if isGeneratingImage {
+                            ProgressView()
+                                .tint(.dpPrimaryText)
+                        } else {
+                            TextButton(
+                                title: session.language == "ko" ? "공유" : "Share",
+                                action: generateAndShare,
+                                isEnabled: !isGeneratingImage
+                            )
+                        }
 
                         Spacer()
 
@@ -93,12 +101,33 @@ struct CompletionView: View {
                 ShareSheet(items: [image])
             }
         }
+        .alert(
+            AlertLabels.imageGenerationFailed(for: session.language),
+            isPresented: $showingErrorAlert
+        ) {
+            Button("OK", role: .cancel) { }
+        }
     }
 
     private func generateAndShare() {
         guard let components = session.components else { return }
-        shareImage = ShareImageGenerator.generate(components: components, language: session.language)
-        showingShareSheet = true
+
+        isGeneratingImage = true
+
+        // UIHostingController and drawHierarchy must run on main thread
+        // Use asyncAfter to allow ProgressView to render before blocking
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            let image = ShareImageGenerator.generate(components: components, language: session.language)
+
+            isGeneratingImage = false
+            shareImage = image
+
+            if shareImage != nil {
+                showingShareSheet = true
+            } else {
+                showingErrorAlert = true
+            }
+        }
     }
 }
 

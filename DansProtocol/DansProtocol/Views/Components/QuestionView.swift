@@ -6,13 +6,20 @@ struct QuestionView: View {
     var isExiting: Bool = false
 
     /// Calculate adaptive font size based on text length
-    /// - > 150 chars: 24pt
-    /// - > 100 chars: 26pt
+    /// More aggressive scaling for longer questions to prevent truncation
+    /// - > 200 chars: 20pt
+    /// - > 150 chars: 22pt
+    /// - > 100 chars: 24pt
+    /// - > 60 chars: 26pt
     /// - Otherwise: 28pt
     private var adaptiveFontSize: CGFloat {
-        if text.count > 150 {
-            return 24
+        if text.count > 200 {
+            return 20
+        } else if text.count > 150 {
+            return 22
         } else if text.count > 100 {
+            return 24
+        } else if text.count > 60 {
             return 26
         } else {
             return 28

@@ -65,10 +65,10 @@ struct JournalingView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            // Question area: 40% of available height, minimum 200pt for readability
-            let questionAreaHeight = max(geometry.size.height * 0.40, 200)
+            // Question area: 50% of available height, minimum 250pt for readability
+            let questionAreaHeight = max(geometry.size.height * 0.50, 250)
             let buttonAreaHeight: CGFloat = 80
-            let inputAreaHeight = max(geometry.size.height - questionAreaHeight - buttonAreaHeight - geometry.safeAreaInsets.bottom, 120)
+            let inputAreaHeight = max(geometry.size.height - questionAreaHeight - buttonAreaHeight - geometry.safeAreaInsets.bottom, 100)
 
             ZStack {
                 // MARK: - Background Layer with Effects (drawingGroup compatible)

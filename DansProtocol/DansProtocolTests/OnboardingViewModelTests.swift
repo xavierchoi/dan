@@ -3,77 +3,38 @@ import UserNotifications
 @testable import DansProtocol
 
 final class OnboardingViewModelTests: XCTestCase {
-    private var testDefaults: UserDefaults!
 
-    override func setUpWithError() throws {
-        testDefaults = UserDefaults(suiteName: "OnboardingViewModelTests")!
-        testDefaults.removePersistentDomain(forName: "OnboardingViewModelTests")
-    }
+    // MARK: - Language Tests
 
-    override func tearDownWithError() throws {
-        testDefaults.removePersistentDomain(forName: "OnboardingViewModelTests")
-        testDefaults = nil
-    }
-
-    // MARK: - Language Storage Tests
-
-    func testLoadsStoredLanguageOnInit() {
-        testDefaults.set("ko", forKey: OnboardingViewModel.userLanguageKey)
-
+    func testUsesSystemLanguage() {
         let viewModel = OnboardingViewModel(
-            userDefaults: testDefaults,
             notificationPermissionChecker: { $0(.notDetermined) }
         )
 
-        XCTAssertEqual(viewModel.selectedLanguage, "ko")
-    }
-
-    func testUsesSystemLanguageWhenNoStoredLanguage() {
-        // No stored language
-        let viewModel = OnboardingViewModel(
-            userDefaults: testDefaults,
-            notificationPermissionChecker: { $0(.notDetermined) }
-        )
-
-        // Should be either "en" or "ko" based on system language
+        // Language should be determined by iOS per-app settings (either "en" or "ko")
         XCTAssertTrue(["en", "ko"].contains(viewModel.selectedLanguage))
     }
 
-    func testSavesLanguageToUserDefaults() {
+    // MARK: - Step Flow Tests
+
+    func testWelcomeGoesDirectlyToDate() {
         let viewModel = OnboardingViewModel(
-            userDefaults: testDefaults,
-            notificationPermissionChecker: { $0(.notDetermined) }
-        )
-
-        viewModel.selectedLanguage = "ko"
-
-        XCTAssertEqual(testDefaults.string(forKey: OnboardingViewModel.userLanguageKey), "ko")
-    }
-
-    // MARK: - Language Step Skip Tests
-
-    func testSkipsLanguageStepWhenLanguageStored() {
-        testDefaults.set("en", forKey: OnboardingViewModel.userLanguageKey)
-
-        let viewModel = OnboardingViewModel(
-            userDefaults: testDefaults,
             notificationPermissionChecker: { $0(.notDetermined) }
         )
 
         XCTAssertEqual(viewModel.currentStep, .welcome)
         viewModel.nextStep()
-        XCTAssertEqual(viewModel.currentStep, .date) // Skipped .language
+        XCTAssertEqual(viewModel.currentStep, .date) // No language step
     }
 
-    func testShowsLanguageStepWhenNoLanguageStored() {
+    func testDateGoesToWakeTime() {
         let viewModel = OnboardingViewModel(
-            userDefaults: testDefaults,
             notificationPermissionChecker: { $0(.notDetermined) }
         )
 
-        XCTAssertEqual(viewModel.currentStep, .welcome)
+        viewModel.currentStep = .date
         viewModel.nextStep()
-        XCTAssertEqual(viewModel.currentStep, .language) // Did not skip
+        XCTAssertEqual(viewModel.currentStep, .wakeTime)
     }
 
     // MARK: - Notification Permission Skip Tests
@@ -82,7 +43,6 @@ final class OnboardingViewModelTests: XCTestCase {
         let expectation = expectation(description: "Step advances")
 
         let viewModel = OnboardingViewModel(
-            userDefaults: testDefaults,
             notificationPermissionChecker: { completion in
                 completion(.authorized)
             }
@@ -103,7 +63,6 @@ final class OnboardingViewModelTests: XCTestCase {
         let expectation = expectation(description: "Step advances")
 
         let viewModel = OnboardingViewModel(
-            userDefaults: testDefaults,
             notificationPermissionChecker: { completion in
                 completion(.denied)
             }
@@ -124,7 +83,6 @@ final class OnboardingViewModelTests: XCTestCase {
         let expectation = expectation(description: "Step advances")
 
         let viewModel = OnboardingViewModel(
-            userDefaults: testDefaults,
             notificationPermissionChecker: { completion in
                 completion(.notDetermined)
             }
@@ -143,33 +101,18 @@ final class OnboardingViewModelTests: XCTestCase {
 
     // MARK: - Previous Step Tests
 
-    func testPreviousStepFromDateGoesToWelcomeWhenLanguageWasSkipped() {
-        testDefaults.set("en", forKey: OnboardingViewModel.userLanguageKey)
-
+    func testPreviousStepFromDateGoesToWelcome() {
         let viewModel = OnboardingViewModel(
-            userDefaults: testDefaults,
             notificationPermissionChecker: { $0(.notDetermined) }
         )
 
         viewModel.currentStep = .date
         viewModel.previousStep()
-        XCTAssertEqual(viewModel.currentStep, .welcome) // Skipped .language
-    }
-
-    func testPreviousStepFromDateGoesToLanguageWhenNoLanguageStored() {
-        let viewModel = OnboardingViewModel(
-            userDefaults: testDefaults,
-            notificationPermissionChecker: { $0(.notDetermined) }
-        )
-
-        viewModel.currentStep = .date
-        viewModel.previousStep()
-        XCTAssertEqual(viewModel.currentStep, .language) // Did not skip
+        XCTAssertEqual(viewModel.currentStep, .welcome)
     }
 
     func testPreviousStepFromReadyGoesToWakeTime() {
         let viewModel = OnboardingViewModel(
-            userDefaults: testDefaults,
             notificationPermissionChecker: { $0(.notDetermined) }
         )
 

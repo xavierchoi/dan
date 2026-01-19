@@ -1,0 +1,106 @@
+# ===================
+# DansProtocol .gitignore
+# iOS/Swift Project - Open Source Ready
+# ===================
+
+# ===== Xcode Build Artifacts =====
+build/
+DerivedData/
+*.xcarchive
+*.dSYM
+*.dSYM.zip
+
+# ===== Xcode User Data =====
+# User-specific Xcode settings (window positions, breakpoints, etc.)
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+xcuserdata/
+*.xcuserstate
+*.xcbkptlist
+*.xccheckout
+
+# ===== macOS System Files =====
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# ===== IDE & Editor Files =====
+# Visual Studio Code
+.vscode/
+
+# JetBrains IDEs (AppCode, etc.)
+.idea/
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+*~
+
+# ===== Swift Package Manager =====
+.build/
+.swiftpm/
+Package.resolved
+
+# ===== Dependency Managers =====
+# CocoaPods (if used in future)
+Pods/
+Podfile.lock
+
+# Carthage (if used in future)
+Carthage/Build/
+Carthage/Checkouts/
+
+# ===== Sensitive Files =====
+# Environment files
+.env
+.env.*
+*.env
+
+# Certificates and keys
+*.p12
+*.cer
+*.mobileprovision
+*.key
+*.pem
+
+# API keys and secrets
+secrets.json
+secrets.plist
+*-secrets.*
+
+# ===== Fastlane =====
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output/
+
+# ===== Testing =====
+*.xcresult
+coverage/
+*.gcda
+*.gcno
+
+# ===== Logs =====
+*.log
+*.xcactivitylog
+
+# ===== Temporary Files =====
+*.tmp
+*.temp
+*.orig
+*.bak
+
+# ===== Optional: XcodeGen =====
+# Uncomment if you want to regenerate project from project.yml
+# *.xcodeproj/
+
+# ===== Worktrees (Development) =====
+.worktrees/

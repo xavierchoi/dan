@@ -44,6 +44,19 @@ class QuestionService {
         }
     }
 
+    /// Find a question by its ID across all parts
+    func question(byId id: String) -> Question? {
+        guard let data = questionsData else { return nil }
+
+        let allQuestions = data.part1
+            + data.part2Interrupts
+            + data.part2Contemplation
+            + data.part3Synthesis
+            + data.part3Components
+
+        return allQuestions.first { $0.id == id }
+    }
+
     enum QuestionType {
         case main
         case interrupt

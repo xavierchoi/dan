@@ -4,29 +4,22 @@ import UserNotifications
 
 @Observable
 class OnboardingViewModel {
-    static let userLanguageKey = "userLanguage"
-
+    /// Language is now determined by iOS per-app language settings (Settings > Apps > Dan's Protocol > Language)
     var selectedLanguage: String {
-        didSet {
-            userDefaults.set(selectedLanguage, forKey: Self.userLanguageKey)
-        }
+        LanguageHelper.currentLanguage
     }
     var selectedDate: Date = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
     var wakeUpTime: Date = Calendar.current.date(from: DateComponents(hour: 7, minute: 0)) ?? Date()
     var currentStep: OnboardingStep = .welcome
 
-    /// Tracks whether a language was already stored when the ViewModel was initialized
-    private let hadStoredLanguage: Bool
-    private let userDefaults: UserDefaults
     private let notificationPermissionChecker: (@escaping (UNAuthorizationStatus) -> Void) -> Void
 
     enum OnboardingStep: Int, CaseIterable {
-        case welcome, language, date, wakeTime, notifications, ready
+        case welcome, date, wakeTime, notifications, ready
     }
 
     convenience init() {
         self.init(
-            userDefaults: .standard,
             notificationPermissionChecker: { completion in
                 UNUserNotificationCenter.current().getNotificationSettings { settings in
                     completion(settings.authorizationStatus)
@@ -36,27 +29,13 @@ class OnboardingViewModel {
     }
 
     init(
-        userDefaults: UserDefaults,
         notificationPermissionChecker: @escaping (@escaping (UNAuthorizationStatus) -> Void) -> Void
     ) {
-        self.userDefaults = userDefaults
         self.notificationPermissionChecker = notificationPermissionChecker
-
-        if let storedLanguage = userDefaults.string(forKey: Self.userLanguageKey) {
-            self.selectedLanguage = storedLanguage
-            self.hadStoredLanguage = true
-        } else {
-            let preferredLanguage = Locale.preferredLanguages.first ?? "en"
-            self.selectedLanguage = preferredLanguage.hasPrefix("ko") ? "ko" : "en"
-            self.hadStoredLanguage = false
-        }
     }
 
     func nextStep() {
         switch currentStep {
-        case .welcome:
-            // Skip language step if user already has a stored language preference
-            currentStep = hadStoredLanguage ? .date : .language
         case .wakeTime:
             // Check notification permission and skip if already determined
             checkNotificationPermissionAndAdvance()
@@ -91,9 +70,6 @@ class OnboardingViewModel {
 
     func previousStep() {
         switch currentStep {
-        case .date:
-            // Go back to language only if we didn't skip it
-            currentStep = hadStoredLanguage ? .welcome : .language
         case .ready:
             // Go back to wakeTime (skip notifications since we may have skipped it going forward)
             currentStep = .wakeTime

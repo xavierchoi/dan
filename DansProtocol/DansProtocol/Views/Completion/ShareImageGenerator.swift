@@ -11,7 +11,10 @@ struct ShareImageGenerator {
         controller.view.bounds = CGRect(origin: .zero, size: size)
         controller.view.backgroundColor = .black
 
-        let renderer = UIGraphicsImageRenderer(size: size)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 3.0
+
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
         return renderer.image { _ in
             controller.view.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
         }
@@ -37,27 +40,33 @@ struct ShareCardView: View {
                 VStack(alignment: .leading, spacing: 32) {
                     ShareComponentItem(
                         title: language == "ko" ? "안티비전" : "Anti-Vision",
-                        value: components.antiVision
+                        value: components.antiVision,
+                        language: language
                     )
                     ShareComponentItem(
                         title: language == "ko" ? "비전" : "Vision",
-                        value: components.vision
+                        value: components.vision,
+                        language: language
                     )
                     ShareComponentItem(
                         title: language == "ko" ? "1년 목표" : "1-Year Goal",
-                        value: components.oneYearGoal
+                        value: components.oneYearGoal,
+                        language: language
                     )
                     ShareComponentItem(
                         title: language == "ko" ? "1달 프로젝트" : "1-Month Project",
-                        value: components.oneMonthProject
+                        value: components.oneMonthProject,
+                        language: language
                     )
                     ShareComponentItem(
                         title: language == "ko" ? "일일 레버" : "Daily Levers",
-                        value: components.dailyLevers.joined(separator: " • ")
+                        value: components.dailyLevers.joined(separator: " • "),
+                        language: language
                     )
                     ShareComponentItem(
                         title: language == "ko" ? "제약" : "Constraints",
-                        value: components.constraints
+                        value: components.constraints,
+                        language: language
                     )
                 }
 
@@ -75,6 +84,11 @@ struct ShareCardView: View {
 struct ShareComponentItem: View {
     let title: String
     let value: String
+    let language: String
+
+    private var valueFontName: String {
+        language == "ko" ? FontFamily.notoSerifKR : FontFamily.playfairDisplay
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -84,7 +98,7 @@ struct ShareComponentItem: View {
                 .tracking(2)
 
             Text(value)
-                .font(.system(size: 20, weight: .regular))
+                .font(.custom(valueFontName, size: 20))
                 .foregroundColor(.white)
                 .lineLimit(3)
         }

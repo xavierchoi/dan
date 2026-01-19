@@ -31,6 +31,7 @@ struct DateSelectionView: View {
                 .datePickerStyle(.graphical)
                 .colorScheme(.dark)
                 .tint(.dpPrimaryText)
+                .frame(minHeight: 350)
 
                 if Calendar.current.isDateInToday(selectedDate) {
                     Text(OnboardingLabels.todayWarning(for: language))

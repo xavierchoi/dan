@@ -13,6 +13,11 @@
 		<false/>
 	</dict>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>프로토콜 결과 이미지를 갤러리에 저장하기 위해 권한이 필요합니다.</string>
+	<string>Permission is required to save images to your gallery.</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>ko</string>
+	</array>
 </dict>
 </plist>

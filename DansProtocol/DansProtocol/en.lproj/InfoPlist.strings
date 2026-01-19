@@ -1,0 +1,2 @@
+/* Photo Library Permission */
+"NSPhotoLibraryAddUsageDescription" = "Permission is required to save protocol result images to your gallery.";

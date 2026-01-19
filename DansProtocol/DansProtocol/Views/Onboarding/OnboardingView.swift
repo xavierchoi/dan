@@ -28,13 +28,6 @@ struct OnboardingView: View {
                             onViewHistory: { showingHistorySheet = true }
                         )
 
-                    case .language:
-                        LanguageSelectionView(
-                            selectedLanguage: $viewModel.selectedLanguage,
-                            onBack: { goBack() },
-                            onContinue: { advanceStep() }
-                        )
-
                     case .date:
                         DateSelectionView(
                             language: viewModel.selectedLanguage,

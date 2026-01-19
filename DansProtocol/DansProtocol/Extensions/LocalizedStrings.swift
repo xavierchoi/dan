@@ -214,6 +214,30 @@ enum HistoryLabels {
     static func thenVsNow(for language: String) -> String {
         language == "ko" ? "과거 vs 현재" : "Then vs Now"
     }
+
+    static func lifeGameComponents(for language: String) -> String {
+        language == "ko" ? "Life Game 컴포넌트" : "Life Game Components"
+    }
+
+    static func journalEntries(for language: String) -> String {
+        language == "ko" ? "저널 항목" : "Journal Entries"
+    }
+
+    static func part1Reflection(for language: String) -> String {
+        language == "ko" ? "Part 1: 성찰" : "Part 1: Reflection"
+    }
+
+    static func part2Interrupts(for language: String) -> String {
+        language == "ko" ? "Part 2: 중단" : "Part 2: Interruption"
+    }
+
+    static func part3Synthesis(for language: String) -> String {
+        language == "ko" ? "Part 3: 통합" : "Part 3: Integration"
+    }
+
+    static func noEntries(for language: String) -> String {
+        language == "ko" ? "항목 없음" : "No entries"
+    }
 }
 
 // MARK: - Notifications
@@ -313,5 +337,9 @@ enum AlertLabels {
 
     static func goBack(for language: String) -> String {
         language == "ko" ? "돌아가기" : "Go Back"
+    }
+
+    static func imageGenerationFailed(for language: String) -> String {
+        language == "ko" ? "이미지를 생성할 수 없습니다" : "Unable to generate image"
     }
 }

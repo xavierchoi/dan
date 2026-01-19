@@ -163,13 +163,9 @@ struct ContentView: View {
 // MARK: - Error View
 
 extension ContentView {
-    /// Returns the current language from UserDefaults or system preference
+    /// Returns the current language from iOS per-app language settings
     private var currentLanguage: String {
-        if let stored = UserDefaults.standard.string(forKey: OnboardingViewModel.userLanguageKey) {
-            return stored
-        }
-        let preferred = Locale.preferredLanguages.first ?? "en"
-        return preferred.hasPrefix("ko") ? "ko" : "en"
+        LanguageHelper.currentLanguage
     }
 
     /// Error view displayed when Questions.json fails to load
